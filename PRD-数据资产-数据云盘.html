@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>数据资产 · 数据云盘 PRD</title>
+<style>
+  /* ===== 基础 ===== */
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 14px; line-height: 1.8; color: #1f2329; background: #fafbfc;
+  }
+  .layout { display: flex; align-items: flex-start; max-width: 1280px; margin: 0 auto; }
+  .toc {
+    width: 240px; flex-shrink: 0; position: sticky; top: 0;
+    height: 100vh; overflow-y: auto; padding: 32px 16px 32px 24px;
+    border-right: 1px solid #e5e7eb; background: #fff;
+  }
+  .toc-title { font-size: 12px; font-weight: 700; color: #6b7280; letter-spacing: 1px; margin-bottom: 12px; }
+  .toc ol { list-style: none; padding: 0; margin: 0; }
+  .toc li { margin: 0; }
+  .toc a {
+    display: block; padding: 6px 10px; border-radius: 4px; font-size: 13px;
+    color: #4b5563; text-decoration: none; line-height: 1.5; border-left: 2px solid transparent;
+  }
+  .toc a:hover { background: #f3f4f6; color: #1d4ed8; }
+  .toc .lv2 { font-weight: 600; color: #1f2329; margin-top: 8px; }
+  .toc .lv3 { padding-left: 22px; font-size: 12.5px; }
+
+  main { flex: 1; min-width: 0; padding: 40px 48px 80px; background: #fff; }
+
+  /* ===== 标题 ===== */
+  h1 { font-size: 26px; font-weight: 700; border-bottom: 2px solid #e5e7eb; padding-bottom: 14px; margin: 0 0 20px; color: #111827; }
+  h2 { font-size: 20px; font-weight: 700; margin: 44px 0 14px; padding-left: 12px; border-left: 4px solid #3370ff; color: #111827; scroll-margin-top: 20px; }
+  h3 { font-size: 16px; font-weight: 600; margin: 28px 0 10px; color: #1f2329; scroll-margin-top: 20px; }
+  h4 { font-size: 14px; font-weight: 600; margin: 20px 0 8px; color: #4b5563; }
+  p { margin: 8px 0; }
+  ul, ol { padding-left: 22px; margin: 8px 0; }
+  li { margin: 4px 0; }
+  a { color: #3370ff; text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  hr { border: none; border-top: 1px solid #e5e7eb; margin: 32px 0; }
+  strong { color: #111827; }
+
+  /* ===== 代码 ===== */
+  code {
+    background: #f3f4f6; border-radius: 3px; padding: 1px 6px;
+    font-family: "SFMono-Regular", Consolas, monospace; font-size: 13px; color: #be185d;
+  }
+  pre {
+    background: #1e1e2e; border-radius: 8px; padding: 16px 18px;
+    overflow-x: auto; margin: 14px 0; font-size: 13px; line-height: 1.85;
+  }
+  pre code { background: none; color: #cdd6f4; padding: 0; }
+  pre .cmt { color: #6c7086; }
+
+  /* ===== 表格 ===== */
+  table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 13.5px; }
+  thead tr { background: #f6f7f9; }
+  th { padding: 10px 14px; text-align: left; font-weight: 600; border: 1px solid #e5e7eb; color: #374151; }
+  td { padding: 10px 14px; border: 1px solid #e5e7eb; vertical-align: top; line-height: 1.7; }
+  tr:nth-child(even) td { background: #fafafa; }
+
+  /* ===== chip ===== */
+  .chip { display: inline-block; padding: 1px 8px; font-size: 11.5px; font-weight: 500; border-radius: 10px; line-height: 1.6; vertical-align: middle; white-space: nowrap; }
+  .chip-req   { background: #fff1f0; color: #cf1322; border: 1px solid #ffa39e; }
+  .chip-opt   { background: #f6ffed; color: #389e0d; border: 1px solid #b7eb8f; }
+  .chip-cond  { background: #fff7e6; color: #d46b08; border: 1px solid #ffd591; }
+  .chip-new   { background: #f0f5ff; color: #1d4ed8; border: 1px solid #adc6ff; }
+  .chip-keep  { background: #f5f5f5; color: #6b7280; border: 1px solid #d9d9d9; }
+  .chip-prj   { background: #f0f5ff; color: #1d4ed8; border: 1px solid #adc6ff; font-family: monospace; }
+  .chip-svc   { background: #f0fdf4; color: #15803d; border: 1px solid #86efac; font-family: monospace; }
+  .chip-ver   { background: #fff7e6; color: #ad4e00; border: 1px solid #ffd591; font-family: monospace; }
+
+  /* ===== 信息条 ===== */
+  .callout { display: flex; gap: 10px; padding: 12px 16px; border-radius: 6px; margin: 14px 0; font-size: 13.5px; line-height: 1.75; border-left: 4px solid; }
+  .callout-icon { font-size: 18px; line-height: 1.4; flex-shrink: 0; }
+  .callout-body { flex: 1; min-width: 0; }
+  .callout-tip     { background: #e6f4ff; border-color: #1677ff; color: #0958d9; }
+  .callout-warn    { background: #fff7e6; border-color: #fa8c16; color: #ad4e00; }
+  .callout-success { background: #f6ffed; border-color: #52c41a; color: #2c7a1a; }
+  .callout-danger  { background: #fff1f0; border-color: #cf1322; color: #a8071a; }
+  .callout-note    { background: #f5f5f5; border-color: #8c8c8c; color: #595959; }
+  .callout strong { color: inherit; }
+
+  blockquote {
+    background: #fffbe6; border-left: 4px solid #faad14; margin: 14px 0;
+    padding: 10px 16px; border-radius: 0 4px 4px 0; color: #78350f; font-size: 13px;
+  }
+
+  /* ===== 一图看懂 概览卡片 ===== */
+  .summary-card {
+    background: linear-gradient(135deg, #f0f9ff 0%, #f5f3ff 100%);
+    border: 1px solid #c7d2fe; border-radius: 10px;
+    padding: 22px 26px; margin: 0 0 28px;
+  }
+  .summary-card h3 { margin-top: 0; color: #4338ca; font-size: 16px; }
+  .summary-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; margin-top: 14px; }
+  .summary-cell { background: #fff; border: 1px solid #e0e7ff; border-radius: 6px; padding: 12px 14px; }
+  .summary-cell-title { font-size: 12px; font-weight: 700; color: #6366f1; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .summary-cell-body { font-size: 13px; color: #374151; line-height: 1.7; }
+
+  /* ===== 概念架构树 ===== */
+  .arch { padding: 20px; background: #fafbfc; border: 1px solid #e5e7eb; border-radius: 8px; margin: 16px 0; }
+  .arch-row { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+  .arch-node { padding: 10px 18px; border-radius: 6px; font-size: 13.5px; font-weight: 600; border: 1.5px solid; background: #fff; text-align: center; min-width: 200px; }
+  .arch-node .sub { display: block; font-size: 11.5px; font-weight: 400; color: #6b7280; margin-top: 2px; }
+  .arch-node-root { border-color: #6366f1; color: #4338ca; background: #eef2ff; }
+  .arch-node-prj  { border-color: #1677ff; color: #0958d9; background: #e6f4ff; }
+  .arch-node-svc  { border-color: #15803d; color: #166534; background: #f0fdf4; }
+  .arch-node-leaf { border-color: #d9d9d9; color: #6b7280; background: #fafafa; min-width: 130px; padding: 6px 10px; font-size: 12.5px; font-weight: 500; }
+  .arch-line { width: 2px; height: 16px; background: #cbd5e1; margin: 0 auto; }
+  .arch-fanout { display: flex; gap: 16px; flex-wrap: wrap; justify-content: center; align-items: flex-start; }
+  .arch-fanout-col { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .arch-fanout .arch-node-svc { min-width: 200px; }
+  .arch-leaf-row { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; max-width: 220px; }
+  .arch-ver-stack { display: flex; flex-direction: column; gap: 8px; align-items: stretch; min-width: 200px; }
+  .arch-svc-id { display: inline-block; margin-left: 6px; padding: 1px 6px; border-radius: 4px; background: rgba(255,255,255,0.6); color: #15803d; font-size: 11px; font-family: monospace; border: 1px solid #86efac; }
+
+  /* ===== 版本 mini 卡片 ===== */
+  .ver-card { border: 1.5px solid #ffd591; background: #fffbf0; border-radius: 6px; padding: 8px 10px; }
+  .ver-card.is-latest { border-color: #fa8c16; background: #fff7e6; box-shadow: 0 0 0 3px rgba(250,140,22,0.08); }
+  .ver-card-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .ver-card-no { font-family: monospace; font-size: 13px; font-weight: 700; color: #ad4e00; }
+  .ver-card.is-latest .ver-card-no { color: #d4380d; }
+  .ver-card-latest { font-size: 10.5px; font-weight: 700; color: #fff; background: #fa8c16; padding: 1px 6px; border-radius: 8px; letter-spacing: 0.5px; }
+  .ver-card-time { font-size: 11px; color: #8c8c8c; margin-bottom: 6px; font-family: monospace; }
+  .ver-card-icons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
+  .ver-icon { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 4px 2px; border-radius: 4px; font-size: 9.5px; line-height: 1.2; font-weight: 500; text-align: center; }
+  .ver-icon .ico { font-size: 14px; line-height: 1; }
+  .ver-icon.on { background: #fff; color: #15803d; border: 1px solid #b7eb8f; }
+  .ver-icon.off { background: #fafafa; color: #bfbfbf; border: 1px dashed #f0f0f0; opacity: 0.6; }
+  .ver-card-author { font-size: 11px; color: #6b7280; margin-top: 6px; display: flex; align-items: center; gap: 4px; }
+  .arch-svc-owner { display: inline-block; margin-left: 4px; padding: 1px 6px; border-radius: 4px; background: #fff; color: #6b7280; font-size: 10.5px; border: 1px solid #e5e7eb; }
+  .ver-icon { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 4px 2px; border-radius: 4px; font-size: 9.5px; line-height: 1.2; font-weight: 500; text-align: center; }
+  .ver-icon .ico { font-size: 14px; line-height: 1; }
+  .ver-icon.on { background: #fff; color: #15803d; border: 1px solid #b7eb8f; }
+  .ver-icon.off { background: #fafafa; color: #bfbfbf; border: 1px solid #f0f0f0; opacity: 0.6; }
+
+  /* ===== SVG 布局示意图 ===== */
+  .mockup { margin: 16px 0 22px; padding: 16px; background: #fafbfc; border: 1px solid #e5e7eb; border-radius: 8px; }
+  .mockup-title { font-size: 12px; font-weight: 600; color: #6b7280; margin-bottom: 10px; letter-spacing: 0.5px; }
+  .mockup svg { display: block; max-width: 100%; height: auto; }
+
+  /* ===== meta 表 ===== */
+  .meta-table { width: auto; min-width: 360px; margin-bottom: 28px; }
+  .meta-table th { background: #f6f7f9; width: 100px; }
+  .meta-table td { background: #fff !important; }
+
+  /* ===== 兼容性降级：窄屏隐藏侧边栏 ===== */
+  @media (max-width: 1024px) {
+    .toc { display: none; }
+    main { padding: 28px 22px 60px; }
+    .summary-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ===== 打印 ===== */
+  @media print {
+    .toc { display: none; }
+    body { background: #fff; }
+    main { padding: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<!-- ===================== 侧边栏 TOC ===================== -->
+<aside class="toc">
+  <div class="toc-title">目录 · CONTENTS</div>
+  <ol>
+    <li><a class="lv2" href="#summary">📌 一图看懂</a></li>
+    <li><a class="lv2" href="#sec-1">一、背景与目标</a></li>
+    <li><a class="lv2" href="#sec-2">二、用户故事</a></li>
+    <li><a class="lv3" href="#sec-2-1">2.1 产线负责人</a></li>
+    <li><a class="lv3" href="#sec-2-2">2.2 算法工程师</a></li>
+    <li><a class="lv3" href="#sec-2-3">2.3 平台管理员</a></li>
+    <li><a class="lv2" href="#sec-3">三、原型链接</a></li>
+    <li><a class="lv2" href="#sec-4">四、概念模型</a></li>
+    <li><a class="lv2" href="#sec-5">五、功能详述</a></li>
+    <li><a class="lv3" href="#sec-5-1">5.1 工程项目列表页</a></li>
+    <li><a class="lv3" href="#sec-5-2">5.2 新建工程项目弹窗</a></li>
+    <li><a class="lv3" href="#sec-5-3">5.3 工程项目详情页</a></li>
+    <li><a class="lv3" href="#sec-5-4">5.4 项目内新建服务弹窗</a></li>
+    <li><a class="lv3" href="#sec-5-5">5.5 服务详情页</a></li>
+    <li><a class="lv3" href="#sec-5-6">5.6 版本历史 Tab</a></li>
+    <li><a class="lv3" href="#sec-5-7">5.7 数据文件 Tab</a></li>
+    <li><a class="lv3" href="#sec-5-8">5.8 模型文件 Tab</a></li>
+    <li><a class="lv3" href="#sec-5-9">5.9 代码文件 Tab</a></li>
+    <li><a class="lv3" href="#sec-5-10">5.10 发布版本弹窗</a></li>
+    <li><a class="lv3" href="#sec-5-11">5.11 设置</a></li>
+    <li><a class="lv2" href="#sec-6">六、权限设计</a></li>
+    <li><a class="lv3" href="#sec-6-1">6.1 角色定义</a></li>
+    <li><a class="lv3" href="#sec-6-2">6.2 权限矩阵</a></li>
+    <li><a class="lv3" href="#sec-6-3">6.3 特殊约束</a></li>
+    <li><a class="lv3" href="#sec-6-4">6.4 权限校验位置</a></li>
+    <li><a class="lv2" href="#sec-7">七、验收标准</a></li>
+  </ol>
+</aside>
+
+<!-- ===================== 主体 ===================== -->
+<main>
+
+<h1>数据资产 · 数据云盘 PRD</h1>
+
+<table class="meta-table">
+  <tbody>
+    <tr><th>文档状态</th><td>待评审</td></tr>
+    <tr><th>PM</th><td>—</td></tr>
+    <tr><th>UX</th><td>—</td></tr>
+    <tr><th>开发者</th><td>—</td></tr>
+    <tr><th>QA</th><td>—</td></tr>
+    <tr><th>相关方</th><td>—</td></tr>
+  </tbody>
+</table>
+
+<h3>文档修订记录</h3>
+<table>
+  <thead><tr><th style="width:120px">修订日期</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>2026-05-21</td><td>初稿创建</td></tr>
+  </tbody>
+</table>
+
+<!-- ===================== 一图看懂 ===================== -->
+<div class="summary-card" id="summary">
+  <h3>📌 一图看懂</h3>
+  <p style="margin:0;font-size:13.5px;color:#374151">
+    本次需求建立平台统一的 <strong>数据云盘</strong> 模块，作为 AI 工程资产中心仓库，采用
+    <span class="chip chip-prj">工程项目 Project</span> →
+    <span class="chip chip-svc">服务 Service</span> →
+    <span class="chip chip-ver">版本 Version</span>
+    三层结构，对齐"一个业务方向下含多个 AI 能力、每个能力按时间线持续迭代"的真实组织模式。
+  </p>
+  <div class="summary-grid">
+    <div class="summary-cell">
+      <div class="summary-cell-title">🎯 解决什么问题</div>
+      <div class="summary-cell-body">
+        AI 工程资产散落各产线本地，<strong>没有版本概念，难以回溯</strong>；业务上"项目"和"AI 能力"是两个粒度，需要承载这两层关系的产品形态。
+      </div>
+    </div>
+    <div class="summary-cell">
+      <div class="summary-cell-title">💡 核心方案</div>
+      <div class="summary-cell-body">
+        以<strong>工程项目</strong>承载业务上下文（产线/负责人/可见性），以<strong>服务</strong>承载实际资产（1 个 LakeFS 仓库 = 数据 + 模型 + 代码 + 版本）。
+      </div>
+    </div>
+    <div class="summary-cell">
+      <div class="summary-cell-title">🏗 模块组成</div>
+      <div class="summary-cell-body">
+        <strong>工程项目列表 + 项目详情 + 服务详情</strong>三个层级页面；新建流程<strong>先建项目，再在项目下建服务</strong>；服务详情含版本历史 / 数据 / 模型 / 代码四个 Tab。
+      </div>
+    </div>
+    <div class="summary-cell">
+      <div class="summary-cell-title">🔗 原型 & 资产</div>
+      <div class="summary-cell-body">
+        原型：<a href="http://10.9.27.34:3030/asset-management.html" target="_blank">10.9.27.34:3030/asset-management.html</a><br>
+        存储：LakeFS（每个服务 1 个仓库）
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ===================== 一、背景与目标 ===================== -->
+<h2 id="sec-1">一、背景与目标</h2>
+
+<div style="background:#fef3c7;border-left:4px solid #f59e0b;padding:10px 14px;border-radius:0 4px 4px 0;margin:12px 0 18px;font-size:12.5px;line-height:1.7;color:#78350f;">
+  <div style="font-weight:700;letter-spacing:0.5px;margin-bottom:4px;">🎯 终极目标</div>
+  <ol style="margin:0;padding-left:20px;">
+    <li>AI 工程部全部线下训练使用的数据集，统一在平台管理</li>
+    <li>基于沉淀的数据，探索与挖掘数据应用的场景</li>
+  </ol>
+</div>
+
+<h3>业务背景</h3>
+<p>平台承担多产线（行服、安全、公路算量、计价产品线、安装算量、土建、呼叫中心、斑马进度、清标等）的 AI 工程化资产管理。在实际业务中：</p>
+<ul>
+  <li>一个业务方向（如「招投标 AI」「工地视觉巡检」）天然由<strong>多个 AI 能力服务</strong>组成（资信审查、技术标评审；安全绳系挂识别、临边防护识别…）</li>
+  <li>每个服务都有独立的训练数据、模型权重、推理 / 训练代码，且迭代频繁</li>
+  <li>支持网页和命令行两种数据上传方式</li>
+</ul>
+
+<h3>业务挑战</h3>
+<ul>
+  <li>缺乏统一的资产管理入口，数据集、模型和代码散落在各产线本地或对象存储中，<strong>没有版本概念</strong>，迭代后难以回溯历史</li>
+  <li>业务上「工程项目」和「AI 能力服务」是天然不同的粒度，但缺少承载这两层关系的产品形态，团队不易整体协作</li>
+  <li>团队成员无法在线浏览文件结构、下载特定版本或查看训练指标</li>
+  <li>优质资产无法便捷共享至全平台，跨团队复用、知识沉淀效率低</li>
+</ul>
+
+<h3>目标</h3>
+<p>建立平台统一的 <strong>数据云盘</strong> 模块，作为 AI 工程资产的中心仓库，从设计之初即采用 <strong>「工程项目 → 服务」两层结构</strong>，对齐业务组织方式：</p>
+<ol>
+  <li><strong>工程项目（Project）</strong>：以业务方向为粒度组织，是若干 AI 能力的集合（如「招投标 AI 套件」「工地视觉巡检」），承载业务上下文、负责人、产线归属和可见性</li>
+  <li><strong>服务（Service）</strong>：以单个 AI 能力为粒度，每个服务对应一个独立的 LakeFS 仓库，独立管理数据、模型、代码和版本，独立发版</li>
+  <li>支持<strong>网页上传</strong>和<strong>命令行推送（lakectl）</strong>两种方式发布版本</li>
+  <li>支持按产线、关键字筛选工程项目，进入项目后查看其下所有服务</li>
+  <li>私有项目可一键发布至「共享数据」，面向全平台开放浏览与引用</li>
+</ol>
+
+<hr>
+
+<!-- ===================== 二、用户故事 ===================== -->
+<h2 id="sec-2">二、用户故事</h2>
+
+<h3 id="sec-2-1">2.1 产线负责人 <span class="chip chip-keep" style="font-weight:500">业务方向规划</span></h3>
+<ol>
+  <li>作为<strong>产线负责人</strong>，我希望先创建一个「工程项目」描述业务方向（如招投标 AI 套件），再在项目下增量新建多个 AI 服务，以便业务体系清晰、可整体管理。</li>
+  <li>作为<strong>产线负责人</strong>，我希望按产线和关键字快速定位某个工程项目，进入后看到该项目下所有服务的发版状态。</li>
+</ol>
+
+<h3 id="sec-2-2">2.2 算法工程师 <span class="chip chip-new" style="font-weight:500">能力开发与发版</span></h3>
+<ol start="3">
+  <li>作为<strong>算法工程师</strong>，我希望在某个工程项目下新建服务并独立发版，以便每个 AI 能力都有自己独立的数据、模型、代码与版本历史。</li>
+  <li>作为<strong>算法工程师</strong>，我希望在服务详情页查看版本历史、数据 / 模型 / 代码文件目录树，以便在需要时下载或切换到指定历史版本。</li>
+  <li>作为<strong>算法工程师</strong>，我希望通过 <code>lakectl</code> 命令行将版本资产直接推送到平台，融入现有 CI/CD 工作流，无需手动打包上传。</li>
+</ol>
+
+<h3 id="sec-2-3">2.3 平台管理员 <span class="chip chip-req" style="font-weight:500">资产治理</span></h3>
+<ol start="6">
+  <li>作为<strong>平台管理员</strong>，我希望将优质私有项目（或其下的服务）一键发布至共享数据区，以便其他产线的成员能够浏览和引用。</li>
+</ol>
+
+<hr>
+
+<!-- ===================== 三、原型链接 ===================== -->
+<h2 id="sec-3">三、原型链接</h2>
+<p>原型（数据云盘列表 / 项目详情 / 服务详情 / 新建项目 / 新建服务 / 发布版本）：</p>
+<p><a href="http://10.9.27.34:3030/asset-management.html" target="_blank" style="font-size:14px;font-weight:500">→ http://10.9.27.34:3030/asset-management.html</a></p>
+
+<div class="callout callout-note">
+  <span class="callout-icon">ℹ️</span>
+  <div class="callout-body">侧边栏选择「数据云盘」查看；如无法访问请确认原型服务是否在运行。</div>
+</div>
+
+<hr>
+
+<!-- ===================== 四、概念模型 ===================== -->
+<h2 id="sec-4">四、概念模型</h2>
+
+<div class="arch">
+  <div class="arch-row">
+    <div class="arch-node arch-node-root">
+      数据云盘
+      <span class="sub">Cloud Disk</span>
+    </div>
+    <div class="arch-line"></div>
+    <div class="arch-node arch-node-prj">
+      工程项目 · 资信标
+      <span class="sub">招投标产线 · 业务方向 · 仅平台元数据</span>
+    </div>
+    <div class="arch-line"></div>
+    <div class="arch-fanout">
+
+      <!-- 服务 1：资信标入口 -->
+      <div class="arch-fanout-col">
+        <div class="arch-node arch-node-svc">
+          资信标入口
+          <span class="sub">
+            <span class="arch-svc-id">svc-A265</span>
+            <span class="arch-svc-owner">👤 张明</span>
+          </span>
+        </div>
+        <div class="arch-line"></div>
+        <div class="arch-ver-stack">
+          <div class="ver-card">
+            <div class="ver-card-head"><span class="ver-card-no">📋 v1.0</span></div>
+            <div class="ver-card-time">📅 2026-04-12</div>
+            <div class="ver-card-icons">
+              <div class="ver-icon on"><span class="ico">📂</span><span>数据</span></div>
+              <div class="ver-icon off"><span class="ico">🧠</span><span>模型</span></div>
+              <div class="ver-icon off"><span class="ico">💻</span><span>代码</span></div>
+            </div>
+          </div>
+          <div class="ver-card">
+            <div class="ver-card-head"><span class="ver-card-no">📋 v1.1</span></div>
+            <div class="ver-card-time">📅 2026-04-28</div>
+            <div class="ver-card-icons">
+              <div class="ver-icon on"><span class="ico">📂</span><span>数据</span></div>
+              <div class="ver-icon off"><span class="ico">🧠</span><span>模型</span></div>
+              <div class="ver-icon on"><span class="ico">💻</span><span>代码</span></div>
+            </div>
+          </div>
+          <div class="ver-card is-latest">
+            <div class="ver-card-head">
+              <span class="ver-card-no">📋 v1.2</span>
+              <span class="ver-card-latest">最新</span>
+            </div>
+            <div class="ver-card-time">📅 2026-05-20</div>
+            <div class="ver-card-icons">
+              <div class="ver-icon on"><span class="ico">📂</span><span>数据</span></div>
+              <div class="ver-icon off"><span class="ico">🧠</span><span>模型</span></div>
+              <div class="ver-icon on"><span class="ico">💻</span><span>代码</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 服务 2：证照分类模型 -->
+      <div class="arch-fanout-col">
+        <div class="arch-node arch-node-svc">
+          证照分类模型
+          <span class="sub">
+            <span class="arch-svc-id">svc-A232</span>
+            <span class="arch-svc-owner">👤 李华</span>
+          </span>
+        </div>
+        <div class="arch-line"></div>
+        <div class="arch-ver-stack">
+          <div class="ver-card">
+            <div class="ver-card-head"><span class="ver-card-no">📋 v1.0</span></div>
+            <div class="ver-card-time">📅 2026-04-20</div>
+            <div class="ver-card-icons">
+              <div class="ver-icon on"><span class="ico">📂</span><span>数据</span></div>
+              <div class="ver-icon on"><span class="ico">🧠</span><span>模型</span></div>
+              <div class="ver-icon on"><span class="ico">💻</span><span>代码</span></div>
+            </div>
+          </div>
+          <div class="ver-card is-latest">
+            <div class="ver-card-head">
+              <span class="ver-card-no">📋 v1.1</span>
+              <span class="ver-card-latest">最新</span>
+            </div>
+            <div class="ver-card-time">📅 2026-05-15</div>
+            <div class="ver-card-icons">
+              <div class="ver-icon on"><span class="ico">📂</span><span>数据</span></div>
+              <div class="ver-icon on"><span class="ico">🧠</span><span>模型</span></div>
+              <div class="ver-icon on"><span class="ico">💻</span><span>代码</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 服务 3：证照字段提取 -->
+      <div class="arch-fanout-col">
+        <div class="arch-node arch-node-svc">
+          证照字段提取
+          <span class="sub">
+            <span class="arch-svc-id">svc-A230</span>
+            <span class="arch-svc-owner">👤 王芳</span>
+          </span>
+        </div>
+        <div class="arch-line"></div>
+        <div class="arch-ver-stack">
+          <div class="ver-card">
+            <div class="ver-card-head"><span class="ver-card-no">📋 v1.0</span></div>
+            <div class="ver-card-time">📅 2026-04-18</div>
+            <div class="ver-card-icons">
+              <div class="ver-icon on"><span class="ico">📂</span><span>数据</span></div>
+              <div class="ver-icon off"><span class="ico">🧠</span><span>模型</span></div>
+              <div class="ver-icon on"><span class="ico">💻</span><span>代码</span></div>
+            </div>
+          </div>
+          <div class="ver-card">
+            <div class="ver-card-head"><span class="ver-card-no">📋 v1.1</span></div>
+            <div class="ver-card-time">📅 2026-05-02</div>
+            <div class="ver-card-icons">
+              <div class="ver-icon on"><span class="ico">📂</span><span>数据</span></div>
+              <div class="ver-icon on"><span class="ico">🧠</span><span>模型</span></div>
+              <div class="ver-icon on"><span class="ico">💻</span><span>代码</span></div>
+            </div>
+          </div>
+          <div class="ver-card is-latest">
+            <div class="ver-card-head">
+              <span class="ver-card-no">📋 v1.2</span>
+              <span class="ver-card-latest">最新</span>
+            </div>
+            <div class="ver-card-time">📅 2026-05-22</div>
+            <div class="ver-card-icons">
+              <div class="ver-icon on"><span class="ico">📂</span><span>数据</span></div>
+              <div class="ver-icon on"><span class="ico">🧠</span><span>模型</span></div>
+              <div class="ver-icon on"><span class="ico">💻</span><span>代码</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="callout callout-note" style="margin-top:10px">
+  <span class="callout-icon">📐</span>
+  <div class="callout-body">
+    层级关系：<strong>数据云盘 → 工程项目（项目负责人）→ 服务（服务负责人 · 接口文档 · 独占 LakeFS 仓库）→ 版本（数据 / 模型 / 代码 + 发版时间）</strong>。同一项目下可含多个服务，每个服务沿时间线持续迭代版本；接口文档挂在服务层（一个服务一份），版本只承载数据 / 模型 / 代码内容。
+  </div>
+</div>
+
+<table>
+  <thead><tr><th style="width:120px">概念</th><th>粒度</th><th>存储</th><th style="width:130px">负责人</th><th>典型示例</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><span class="chip chip-prj">工程项目</span></td>
+      <td>业务方向（粗粒度）</td>
+      <td>仅平台元数据（MySQL）</td>
+      <td>产线负责人（创建时指定）</td>
+      <td>招投标 AI 套件、工地视觉巡检、AI 智能组价</td>
+    </tr>
+    <tr>
+      <td><span class="chip chip-svc">服务</span></td>
+      <td>AI 能力单元（细粒度）</td>
+      <td>1 个独立 LakeFS 仓库</td>
+      <td>算法工程师（创建时默认=创建者，可在服务设置中变更）</td>
+      <td>资信标入口（<code>svc-A265</code>，张明）、证照分类模型（<code>svc-A232</code>，李华）、证照字段提取（<code>svc-A230</code>，王芳）</td>
+    </tr>
+    <tr>
+      <td><span class="chip chip-ver">版本</span></td>
+      <td>一次发版的快照（时间线维度）</td>
+      <td>LakeFS 仓库内的一次 commit（含 <code>data/</code>、<code>models/</code>（可选）、<code>code/</code>（可选）、<code>README.md</code>）</td>
+      <td>—（版本不归属个人，归属于服务）</td>
+      <td><code>v1.0</code> / <code>v1.1</code> / <code>v1.2</code>（最新）…</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout callout-warn">
+  <span class="callout-icon">⚠️</span>
+  <div class="callout-body">
+    <strong>关键约束：</strong>
+    <ul style="margin:6px 0 0">
+      <li>服务名称在<strong>同一工程项目内不可重复</strong>，但<strong>不同项目之间可以重名</strong>（服务的全局唯一标识为系统自动生成的 Service ID，如 <code>svc-A265</code>）</li>
+      <li>工程项目的「产线」「可见性」会被新建服务<strong>默认继承</strong>（可在服务层覆写）</li>
+      <li><strong>项目</strong>有项目负责人；<strong>服务</strong>有服务负责人（默认=创建者，可在「服务设置」中变更，常用于交接）；<strong>版本</strong>不记录发版人（命令行 / lakectl 上传场景下身份难以稳定获取，版本归属服务即可）</li>
+      <li><strong>接口文档地址挂在服务层</strong>（一个服务一份），不随版本变化；可在创建服务时填写或在「服务设置」中变更</li>
+      <li><strong>发版以服务为单位</strong>进行；项目本身没有版本号</li>
+      <li>每个服务的版本号在<strong>服务内全局唯一</strong>且单调递增（首版 <code>v1.0.0</code>，由系统自动 +1 建议）；同一时刻一个服务只有一个「最新」版本</li>
+      <li>历史版本<strong>只读、不可覆盖</strong>，可下载或切换为最新版（生成新 commit），保证可追溯</li>
+    </ul>
+  </div>
+</div>
+
+<hr>
+
+<!-- ===================== 五、功能详述 ===================== -->
+<h2 id="sec-5">五、功能详述</h2>
+
+<!-- ============ 5.1 列表页 ============ -->
+<h3 id="sec-5-1">5.1 数据云盘 · 工程项目列表页</h3>
+
+<div class="mockup">
+  <div class="mockup-title">页面布局示意 · 工程项目列表</div>
+  <svg viewBox="0 0 760 320" xmlns="http://www.w3.org/2000/svg">
+    <!-- 整体框 -->
+    <rect x="0" y="0" width="760" height="320" fill="#fff" stroke="#e5e7eb" rx="6"/>
+    <!-- 顶部标题区 -->
+    <rect x="0" y="0" width="760" height="48" fill="#fafbfc" stroke="#e5e7eb"/>
+    <text x="20" y="22" font-size="14" font-weight="700" fill="#111827">数据云盘</text>
+    <text x="20" y="38" font-size="11" fill="#6b7280">管理 AI 工程项目资产 · 🗄 LakeFS</text>
+    <!-- 工具栏 -->
+    <rect x="20" y="60" width="100" height="30" fill="#3370ff" rx="4"/>
+    <text x="70" y="80" text-anchor="middle" font-size="12" font-weight="600" fill="#fff">＋ 新建项目</text>
+    <rect x="130" y="60" width="200" height="30" fill="#fff" stroke="#d9d9d9" rx="4"/>
+    <text x="142" y="80" font-size="11" fill="#9ca3af">🔍 搜索工程项目...</text>
+    <rect x="340" y="60" width="110" height="30" fill="#fff" stroke="#d9d9d9" rx="4"/>
+    <text x="352" y="80" font-size="11" fill="#374151">全部产线 ▾</text>
+    <text x="700" y="80" text-anchor="end" font-size="11" fill="#6b7280">共 9 个项目</text>
+    <!-- 卡片网格 -->
+    <g font-size="11" fill="#374151">
+      <!-- card 1 -->
+      <rect x="20" y="106" width="230" height="100" fill="#fff" stroke="#e5e7eb" rx="6"/>
+      <rect x="32" y="118" width="28" height="28" fill="#eef2ff" rx="4"/>
+      <text x="46" y="137" text-anchor="middle" font-size="14">📦</text>
+      <rect x="68" y="120" width="30" height="14" fill="#fee2e2" rx="2"/>
+      <text x="83" y="131" text-anchor="middle" font-size="9" fill="#b91c1c">行服</text>
+      <rect x="200" y="116" width="40" height="14" fill="#f3f4f6" rx="7"/>
+      <text x="220" y="127" text-anchor="middle" font-size="9" fill="#6b7280">🔒 私有</text>
+      <text x="68" y="148" font-weight="600" fill="#111827">招投标 AI 套件</text>
+      <text x="32" y="170" font-size="10" fill="#6b7280">面向招投标全流程的 AI 辅助...</text>
+      <rect x="32" y="180" width="56" height="16" fill="#dbeafe" rx="8"/>
+      <text x="60" y="191" text-anchor="middle" font-size="9" fill="#1d4ed8">🧩 4 服务</text>
+      <rect x="92" y="180" width="58" height="16" fill="#f0fdf4" rx="8"/>
+      <text x="121" y="191" text-anchor="middle" font-size="9" fill="#15803d">📋 7 发版</text>
+      <!-- card 2 -->
+      <rect x="265" y="106" width="230" height="100" fill="#fff" stroke="#e5e7eb" rx="6"/>
+      <rect x="277" y="118" width="28" height="28" fill="#eef2ff" rx="4"/>
+      <text x="291" y="137" text-anchor="middle" font-size="14">📦</text>
+      <rect x="313" y="120" width="60" height="14" fill="#fef3c7" rx="2"/>
+      <text x="343" y="131" text-anchor="middle" font-size="9" fill="#92400e">公路算量</text>
+      <text x="313" y="148" font-weight="600" fill="#111827">公路算量图纸识别</text>
+      <text x="277" y="170" font-size="10" fill="#6b7280">面向公路工程算量的图纸识别...</text>
+      <rect x="277" y="180" width="60" height="16" fill="#dbeafe" rx="8"/>
+      <text x="307" y="191" text-anchor="middle" font-size="9" fill="#1d4ed8">🧩 16 服务</text>
+      <!-- card 3 -->
+      <rect x="510" y="106" width="230" height="100" fill="#fff" stroke="#e5e7eb" rx="6"/>
+      <rect x="522" y="118" width="28" height="28" fill="#eef2ff" rx="4"/>
+      <text x="536" y="137" text-anchor="middle" font-size="14">📦</text>
+      <rect x="558" y="120" width="30" height="14" fill="#dcfce7" rx="2"/>
+      <text x="573" y="131" text-anchor="middle" font-size="9" fill="#166534">安全</text>
+      <text x="558" y="148" font-weight="600" fill="#111827">工地视觉巡检</text>
+      <text x="522" y="170" font-size="10" fill="#6b7280">基于摄像头视频流的工地安全...</text>
+      <rect x="522" y="180" width="60" height="16" fill="#dbeafe" rx="8"/>
+      <text x="552" y="191" text-anchor="middle" font-size="9" fill="#1d4ed8">🧩 20 服务</text>
+      <!-- card 4 5 6 缩略行 -->
+      <rect x="20" y="220" width="230" height="80" fill="#fff" stroke="#e5e7eb" rx="6" opacity="0.55"/>
+      <text x="135" y="265" text-anchor="middle" font-size="11" fill="#9ca3af">AI 智能组价</text>
+      <rect x="265" y="220" width="230" height="80" fill="#fff" stroke="#e5e7eb" rx="6" opacity="0.55"/>
+      <text x="380" y="265" text-anchor="middle" font-size="11" fill="#9ca3af">安装算量图纸识别</text>
+      <rect x="510" y="220" width="230" height="80" fill="#fff" stroke="#e5e7eb" rx="6" opacity="0.55"/>
+      <text x="625" y="265" text-anchor="middle" font-size="11" fill="#9ca3af">智能客服对话</text>
+    </g>
+  </svg>
+</div>
+
+<h4>页面整体结构</h4>
+<table>
+  <thead><tr><th style="width:90px">区域</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>页面标题</td><td>「数据云盘」，副标题：管理 AI 工程项目资产，一个项目包含多个服务，每个服务独立发版 · 🗄 LakeFS</td></tr>
+    <tr><td>工具栏</td><td>新建项目按钮 / 搜索框 / 产线筛选 / 项目总数统计</td></tr>
+    <tr><td>内容区</td><td>工程项目卡片网格，<strong>默认一排 4 列</strong>（≤1200px 屏自动降为 3 列、≤900px 降为 2 列、≤640px 降为 1 列）</td></tr>
+  </tbody>
+</table>
+
+<h4>工具栏筛选项</h4>
+<table>
+  <thead><tr><th style="width:90px">筛选项</th><th style="width:130px">类型</th><th>选项值</th></tr></thead>
+  <tbody>
+    <tr><td>搜索框</td><td>文本输入，实时过滤</td><td>按项目名称、描述、产线、负责人模糊匹配</td></tr>
+    <tr><td>产线筛选</td><td>单选下拉</td><td>全部 / 行服 / 公路算量 / 安全 / 计价产品线 / 土建 / 安装算量 / 呼叫中心 / 斑马进度 / 清标（以平台实际产线配置为准）</td></tr>
+  </tbody>
+</table>
+
+<div class="callout callout-tip">
+  <span class="callout-icon">💡</span>
+  <div class="callout-body">任务类型筛选下沉到服务层（在项目详情页内做筛选），列表页不展示。</div>
+</div>
+
+<h4>工程项目卡片内容</h4>
+<table>
+  <thead><tr><th style="width:110px">元素</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>项目图标</td><td>统一使用 📦，背景为主色淡色</td></tr>
+    <tr><td>产线标签</td><td>彩色小标签，展示项目所属产线</td></tr>
+    <tr><td>项目名称</td><td>加粗文字，超长省略</td></tr>
+    <tr><td>可见性标签</td><td>卡片右上角展示「🔒 私有」/「🌐 公开」</td></tr>
+    <tr><td>描述</td><td>最多展示 2 行，超出省略</td></tr>
+    <tr><td>服务数标签</td><td>「🧩 N 个服务」（蓝色）</td></tr>
+    <tr><td>发版数标签</td><td>「📋 N 次发版」（项目下所有服务的累计发版数）</td></tr>
+    <tr><td>含模型标签</td><td>「🧠 N 个含模型」（项目下含模型权重的服务数）</td></tr>
+    <tr><td>负责人</td><td>卡片底部「👤 {负责人姓名}」</td></tr>
+    <tr><td>更新时间</td><td>右下角灰色文字（取项目下任一服务最近更新时间）</td></tr>
+  </tbody>
+</table>
+<p><strong>Hover 行为</strong>：卡片右上角出现「查看」快捷按钮，点击进入项目详情页；同时卡片整体上移 2px，阴影加深。</p>
+
+<h4>空状态</h4>
+<table>
+  <thead><tr><th style="width:130px">场景</th><th>展示内容</th></tr></thead>
+  <tbody>
+    <tr><td>无任何项目</td><td>☁️ 图标 + 「暂无工程项目」 + 「点击「新建项目」创建第一个工程项目，然后在项目下新建服务、发布版本」</td></tr>
+    <tr><td>筛选无结果</td><td>🔍 图标 + 「未找到匹配的项目」 + 「尝试调整搜索词或筛选条件」</td></tr>
+  </tbody>
+</table>
+
+<!-- ============ 5.2 新建项目弹窗 ============ -->
+<h3 id="sec-5-2">5.2 新建工程项目弹窗</h3>
+<p>点击列表页「＋ 新建项目」弹出。</p>
+
+<div class="callout callout-tip">
+  <span class="callout-icon">💡</span>
+  <div class="callout-body">
+    <strong>顶部提示（蓝色信息条）：</strong>工程项目是一个业务方向（如「招投标 AI 套件」），下面可包含多个 AI 服务（如资信审查、技术标评审）。每个服务有独立的数据集、模型和版本。
+  </div>
+</div>
+
+<h4>字段说明</h4>
+<table>
+  <thead><tr><th style="width:110px">字段</th><th style="width:160px">类型</th><th style="width:90px">必填</th><th>规则</th></tr></thead>
+  <tbody>
+    <tr><td>项目名称</td><td>文本输入</td><td><span class="chip chip-req">必填</span></td><td>长度 1–50 字符；同一租户内不可重名</td></tr>
+    <tr><td>所属产线</td><td>单选下拉（含「+ 新建产线」选项）</td><td><span class="chip chip-req">必填</span></td><td>选择「+ 新建产线...」后行内展示文本输入框（最多 20 字符）</td></tr>
+    <tr><td>负责人</td><td>文本输入</td><td><span class="chip chip-req">必填</span></td><td>项目负责人姓名（最多 20 字符），可在「设置」中变更</td></tr>
+    <tr><td>项目描述</td><td>文本域</td><td><span class="chip chip-opt">选填</span></td><td>描述该工程项目要解决的业务问题、覆盖场景等</td></tr>
+    <tr><td>初始可见性</td><td>单选卡片组</td><td><span class="chip chip-req">必填</span>（默认私有）</td><td>🔒 私有：仅当前产线成员访问；🌐 公开：项目下的服务可发布至共享数据</td></tr>
+  </tbody>
+</table>
+
+<h4>创建后行为</h4>
+<ol>
+  <li>项目立即出现在列表页顶部</li>
+  <li>弹窗关闭后自动跳转至项目详情页</li>
+  <li><strong>自动弹出「新建服务」弹窗</strong>，引导用户在项目下创建第一个服务</li>
+</ol>
+
+<!-- ============ 5.3 项目详情页 ============ -->
+<h3 id="sec-5-3">5.3 工程项目详情页</h3>
+
+<div class="mockup">
+  <div class="mockup-title">页面布局示意 · 工程项目详情</div>
+  <svg viewBox="0 0 760 360" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="760" height="360" fill="#fff" stroke="#e5e7eb" rx="6"/>
+    <!-- 面包屑 -->
+    <text x="20" y="22" font-size="11" fill="#6b7280">
+      <tspan fill="#3370ff">数据云盘</tspan>
+      <tspan dx="4" fill="#9ca3af">/</tspan>
+      <tspan dx="4" fill="#111827" font-weight="600">招投标 AI 套件</tspan>
+    </text>
+    <!-- 头部 -->
+    <rect x="20" y="34" width="40" height="40" fill="#eef2ff" rx="6"/>
+    <text x="40" y="61" text-anchor="middle" font-size="20">📦</text>
+    <text x="72" y="48" font-size="11" fill="#6b7280">行服 产线</text>
+    <text x="72" y="66" font-size="15" font-weight="700" fill="#111827">招投标 AI 套件</text>
+    <rect x="225" y="56" width="50" height="16" fill="#f3f4f6" rx="8"/>
+    <text x="250" y="67" text-anchor="middle" font-size="10" fill="#6b7280">🔒 私有</text>
+    <text x="72" y="84" font-size="11" fill="#6b7280">面向招投标全流程的 AI 辅助能力套件，覆盖资信审查、技术标评审...</text>
+    <!-- 操作按钮 -->
+    <rect x="590" y="42" width="90" height="28" fill="#3370ff" rx="4"/>
+    <text x="635" y="60" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">＋ 新建服务</text>
+    <rect x="685" y="42" width="55" height="28" fill="#fff" stroke="#d9d9d9" rx="4"/>
+    <text x="712" y="60" text-anchor="middle" font-size="11" fill="#374151">⚙️ 设置</text>
+    <!-- 统计行 -->
+    <text x="20" y="108" font-size="11" fill="#6b7280">🔑 <tspan fill="#3370ff" font-family="monospace">prj-001</tspan> · 🧩 <tspan fill="#111827" font-weight="600">4</tspan> 个服务 · 👤 张三 · 🕐 2024-03-15</text>
+    <line x1="0" y1="124" x2="760" y2="124" stroke="#e5e7eb"/>
+    <!-- 区域标题 -->
+    <text x="20" y="148" font-size="12" font-weight="700" fill="#111827">📋 项目下的服务</text>
+    <text x="740" y="148" text-anchor="end" font-size="10" fill="#6b7280">每个服务对应一个独立的 LakeFS 仓库</text>
+    <!-- 服务卡片 -->
+    <g font-size="11" fill="#374151">
+      <rect x="20" y="160" width="170" height="90" fill="#fff" stroke="#e5e7eb" rx="6"/>
+      <rect x="32" y="172" width="24" height="24" fill="#fff7e6" rx="4"/>
+      <text x="44" y="188" text-anchor="middle" font-size="12">💬</text>
+      <text x="64" y="180" font-size="9" fill="#9ca3af">招投标 AI 套件</text>
+      <text x="64" y="195" font-weight="600" fill="#111827">资信标抽取</text>
+      <text x="32" y="215" font-size="10" fill="#6b7280">资信标抽取并比对评审</text>
+      <rect x="32" y="222" width="50" height="14" fill="#fff7e6" rx="2"/>
+      <text x="57" y="232" text-anchor="middle" font-size="9" fill="#92400e">LLM 监督</text>
+      <rect x="86" y="222" width="32" height="14" fill="#f0fdf4" rx="2"/>
+      <text x="102" y="232" text-anchor="middle" font-size="9" fill="#15803d">v1.3</text>
+
+      <rect x="205" y="160" width="170" height="90" fill="#fff" stroke="#e5e7eb" rx="6"/>
+      <rect x="217" y="172" width="24" height="24" fill="#fff7e6" rx="4"/>
+      <text x="229" y="188" text-anchor="middle" font-size="12">💬</text>
+      <text x="249" y="180" font-size="9" fill="#9ca3af">招投标 AI 套件</text>
+      <text x="249" y="195" font-weight="600" fill="#111827">技术标评审</text>
+      <text x="217" y="215" font-size="10" fill="#6b7280">辅助评标专家智能评审...</text>
+      <rect x="217" y="222" width="50" height="14" fill="#fff7e6" rx="2"/>
+      <text x="242" y="232" text-anchor="middle" font-size="9" fill="#92400e">LLM 监督</text>
+
+      <rect x="390" y="160" width="170" height="90" fill="#fff" stroke="#e5e7eb" rx="6"/>
+      <rect x="402" y="172" width="24" height="24" fill="#fff7e6" rx="4"/>
+      <text x="414" y="188" text-anchor="middle" font-size="12">💬</text>
+      <text x="434" y="180" font-size="9" fill="#9ca3af">招投标 AI 套件</text>
+      <text x="434" y="195" font-weight="600" fill="#111827">灌注桩优劣评审</text>
+
+      <rect x="575" y="160" width="170" height="90" fill="#fff" stroke="#e5e7eb" rx="6"/>
+      <rect x="587" y="172" width="24" height="24" fill="#fff7e6" rx="4"/>
+      <text x="599" y="188" text-anchor="middle" font-size="12">💬</text>
+      <text x="619" y="180" font-size="9" fill="#9ca3af">招投标 AI 套件</text>
+      <text x="619" y="195" font-weight="600" fill="#111827">点抽取评审</text>
+    </g>
+    <!-- 提示 -->
+    <text x="380" y="320" text-anchor="middle" font-size="10" fill="#9ca3af">点击任一服务卡片进入服务详情页（数据/模型/代码/版本管理）</text>
+  </svg>
+</div>
+
+<h4>头部信息区</h4>
+<table>
+  <thead><tr><th style="width:90px">元素</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>面包屑</td><td>「数据云盘 / {项目名}」，点击「数据云盘」返回列表</td></tr>
+    <tr><td>项目图标</td><td>大图标（📦），背景主色淡色</td></tr>
+    <tr><td>所属产线</td><td>副文字，格式：「{产线名} 产线」</td></tr>
+    <tr><td>项目名称</td><td>加粗大字，右侧展示可见性标签（🔒 私有 / 🌐 公开）</td></tr>
+    <tr><td>项目描述</td><td>项目名下方灰色文字（最多 2 行）</td></tr>
+    <tr><td>操作按钮</td><td>「＋ 新建服务」（主按钮）/ 「⚙️ 设置」（默认按钮）</td></tr>
+  </tbody>
+</table>
+
+<h4>统计信息行</h4>
+<table>
+  <thead><tr><th style="width:130px">元素</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>🔑 Project ID</td><td>点击可复制，显示「已复制」绿色提示（2 秒后消失）</td></tr>
+    <tr><td>🧩 服务数</td><td>当前项目下的服务总数</td></tr>
+    <tr><td>👤 负责人</td><td>项目负责人</td></tr>
+    <tr><td>🕐 最近更新</td><td>项目下任一服务的最近更新时间</td></tr>
+  </tbody>
+</table>
+
+<h4>服务列表区</h4>
+<ul>
+  <li>区域标题：「📋 项目下的服务」</li>
+  <li>副标题：「每个服务对应一个独立的 LakeFS 仓库，可独立发版」</li>
+  <li>内容：以卡片网格形式展示项目下所有服务，<strong>默认一排 4 列</strong>（≤1200px 屏降为 3 列、≤900px 降为 2 列、≤640px 降为 1 列）</li>
+  <li>底部居中提示文字：「点击任一服务卡片进入服务详情页（数据 / 模型 / 代码 / 版本管理）」</li>
+</ul>
+
+<h4>服务卡片内容</h4>
+<table>
+  <thead><tr><th style="width:120px">元素</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>类型图标</td><td>根据服务任务类型展示对应 Emoji 图标，背景色与任务类型对应</td></tr>
+    <tr><td>父项目标记</td><td>卡片头部小字：「{父工程项目名}」（弱化展示，提示归属）</td></tr>
+    <tr><td>服务名</td><td>加粗文字，超长省略</td></tr>
+    <tr><td>描述</td><td>最多展示 2 行</td></tr>
+    <tr><td>任务类型标签</td><td>服务的任务类型</td></tr>
+    <tr><td>最新版本号</td><td>如 v1.2.0，无版本时不展示</td></tr>
+    <tr><td>含模型标签</td><td>服务含模型权重时展示「🧠 模型」</td></tr>
+    <tr><td>业务服务 ID</td><td>关联到行业 AI 平台的业务服务 ID（如 A265）（monospace 字体）</td></tr>
+    <tr><td>版本数量</td><td>「📋 N 版本」</td></tr>
+    <tr><td>部署方式</td><td>阿里云部署 ☁、私有化部署 🔒（标准部署不展示）</td></tr>
+    <tr><td>更新时间</td><td>右下角灰色文字</td></tr>
+  </tbody>
+</table>
+<p><strong>Hover 行为</strong>：卡片右上角出现「发版」快捷按钮，点击直接进入该服务详情并弹出发布版本弹窗。</p>
+
+<h4>空状态</h4>
+<table>
+  <thead><tr><th style="width:130px">场景</th><th>展示内容</th></tr></thead>
+  <tbody>
+    <tr><td>项目下无服务</td><td>🧩 图标 + 「该项目下还没有服务」 + 「点击右上角「＋ 新建服务」创建第一个 AI 服务，每个服务对应一个独立的 LakeFS 仓库」 + 「＋ 新建服务」按钮</td></tr>
+  </tbody>
+</table>
+
+<!-- ============ 5.4 新建服务弹窗 ============ -->
+<h3 id="sec-5-4">5.4 项目内新建服务弹窗</h3>
+<p>点击项目详情页「＋ 新建服务」弹出，弹窗标题：「新建服务 · {所属项目名}」（项目名高亮蓝色）。</p>
+
+<div class="callout callout-success">
+  <span class="callout-icon">🧩</span>
+  <div class="callout-body">
+    <strong>顶部提示（绿色信息条）：</strong>一个服务 = 一个 AI 能力单元 = 一个独立的 LakeFS 仓库。创建后可独立发版、独立管理数据集 / 模型 / 代码。
+  </div>
+</div>
+
+<h4>字段说明</h4>
+<table>
+  <thead><tr><th style="width:130px">字段</th><th style="width:140px">类型</th><th style="width:90px">必填</th><th>规则</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>服务名称</td><td>文本输入</td><td><span class="chip chip-req">必填</span></td>
+      <td>支持中英文 / 数字 / 常用符号，长度 1–50 字符；<strong>同一项目内不可重名</strong>（跨项目可重名）。服务的全局唯一标识为系统自动生成的 Service ID（如 <code>svc-A265</code>），对应 LakeFS 仓库路径 <code>lakefs://{service-id}/main</code></td>
+    </tr>
+    <tr>
+      <td>部署方式</td><td>单选卡片组</td><td><span class="chip chip-req">必填</span></td>
+      <td>选项：标准部署 / 阿里云部署 / 私有化部署 / 自定义（选择后展示文本输入框）</td>
+    </tr>
+    <tr>
+      <td>任务类型</td><td>单选卡片网格</td><td><span class="chip chip-req">必填</span></td>
+      <td>物体检测 / 图片分类 / OCR 识别 / LLM 监督式 / LLM 无监督 / VLM 视觉问答 / 通用</td>
+    </tr>
+    <tr>
+      <td>服务负责人</td><td>人员选择器</td><td><span class="chip chip-req">必填</span></td>
+      <td>默认填入当前登录用户；可改选项目内其他成员。负责该服务的日常发版与设置变更，可在「服务设置」中变更（常用于交接）</td>
+    </tr>
+    <tr>
+      <td>服务描述</td><td>文本域</td><td><span class="chip chip-opt">选填</span></td>
+      <td>描述该算法服务的应用场景</td>
+    </tr>
+    <tr>
+      <td>关联业务服务 ID</td><td>标签输入（回车添加）</td><td><span class="chip chip-opt">选填</span>，可多个</td>
+      <td>关联到行业 AI 平台已有的业务服务 ID（如 A265），便于追溯调用关系</td>
+    </tr>
+    <tr>
+      <td>接口文档地址</td><td>URL 输入</td><td><span class="chip chip-opt">选填</span></td>
+      <td>挂在服务层（一份）；填写后服务详情页 Tab 条出现「📄 接口文档 ↗」外链入口；可在「服务设置」中变更</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="callout callout-note">
+  <span class="callout-icon">🔒</span>
+  <div class="callout-body">
+    <strong>继承自工程项目（自动带入，不显示给用户）：</strong>所属产线、初始可见性。
+  </div>
+</div>
+
+<h4>创建后行为</h4>
+<ol>
+  <li>服务立即追加到当前工程项目的服务列表</li>
+  <li>弹窗关闭后跳转至服务详情页</li>
+  <li><strong>自动弹出「发布版本」弹窗</strong>，引导用户发布首版</li>
+</ol>
+
+<!-- ============ 5.5 服务详情页 ============ -->
+<h3 id="sec-5-5">5.5 服务详情页</h3>
+
+<div class="mockup">
+  <div class="mockup-title">页面布局示意 · 服务详情</div>
+  <svg viewBox="0 0 760 320" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="760" height="320" fill="#fff" stroke="#e5e7eb" rx="6"/>
+    <!-- 三级面包屑 -->
+    <text x="20" y="22" font-size="11">
+      <tspan fill="#3370ff">数据云盘</tspan>
+      <tspan dx="4" fill="#9ca3af">/</tspan>
+      <tspan dx="4" fill="#3370ff">招投标 AI 套件</tspan>
+      <tspan dx="4" fill="#9ca3af">/</tspan>
+      <tspan dx="4" fill="#111827" font-weight="600">资信标抽取</tspan>
+    </text>
+    <!-- 头部 -->
+    <rect x="20" y="34" width="40" height="40" fill="#fff7e6" rx="6"/>
+    <text x="40" y="61" text-anchor="middle" font-size="20">💬</text>
+    <text x="72" y="48" font-size="11" fill="#6b7280">行服 产线 · 招投标 AI 套件</text>
+    <text x="72" y="66" font-size="15" font-weight="700" fill="#111827">资信标抽取</text>
+    <rect x="220" y="56" width="50" height="16" fill="#f3f4f6" rx="8"/>
+    <text x="245" y="67" text-anchor="middle" font-size="10" fill="#6b7280">🔒 私有</text>
+    <!-- 标签行 -->
+    <rect x="20" y="88" width="50" height="16" fill="#fee2e2" rx="2"/>
+    <text x="45" y="99" text-anchor="middle" font-size="10" fill="#b91c1c">行服</text>
+    <rect x="76" y="88" width="56" height="16" fill="#fff7e6" rx="2"/>
+    <text x="104" y="99" text-anchor="middle" font-size="10" fill="#92400e">LLM 监督</text>
+    <rect x="138" y="88" width="38" height="16" fill="#f0fdf4" rx="2"/>
+    <text x="157" y="99" text-anchor="middle" font-size="10" fill="#15803d">v1.3.0</text>
+    <rect x="182" y="88" width="60" height="16" fill="#e6f4ff" rx="2"/>
+    <text x="212" y="99" text-anchor="middle" font-size="10" fill="#0958d9">☁ 阿里云</text>
+    <!-- 操作 -->
+    <rect x="590" y="42" width="90" height="28" fill="#3370ff" rx="4"/>
+    <text x="635" y="60" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">🚀 发布版本</text>
+    <rect x="685" y="42" width="55" height="28" fill="#fff" stroke="#d9d9d9" rx="4"/>
+    <text x="712" y="60" text-anchor="middle" font-size="11" fill="#374151">设置</text>
+    <!-- 统计 -->
+    <text x="20" y="126" font-size="11" fill="#6b7280">🔑 <tspan fill="#3370ff" font-family="monospace">svc-001</tspan> · 📁 12 文件 · 💾 142 MB · 🕐 2024-03-15</text>
+    <line x1="0" y1="142" x2="760" y2="142" stroke="#e5e7eb"/>
+    <!-- Tab 条 -->
+    <text x="30" y="166" font-size="12" font-weight="600" fill="#3370ff">📋 版本历史</text>
+    <line x1="20" y1="174" x2="115" y2="174" stroke="#3370ff" stroke-width="2"/>
+    <text x="140" y="166" font-size="12" fill="#6b7280">📂 数据文件</text>
+    <text x="230" y="166" font-size="12" fill="#6b7280">🧠 模型文件</text>
+    <text x="320" y="166" font-size="12" fill="#6b7280">💻 代码文件</text>
+    <text x="420" y="166" font-size="12" fill="#3370ff">📄 接口文档 ↗</text>
+    <line x1="0" y1="184" x2="760" y2="184" stroke="#e5e7eb"/>
+    <!-- 内容区：版本表格 -->
+    <rect x="20" y="200" width="720" height="24" fill="#fafbfc"/>
+    <text x="32" y="216" font-size="11" font-weight="600" fill="#374151">版本号</text>
+    <text x="140" y="216" font-size="11" font-weight="600" fill="#374151">内容</text>
+    <text x="260" y="216" font-size="11" font-weight="600" fill="#374151">发布说明</text>
+    <text x="560" y="216" font-size="11" font-weight="600" fill="#374151">时间</text>
+    <text x="660" y="216" font-size="11" font-weight="600" fill="#374151">操作</text>
+    <line x1="20" y1="232" x2="740" y2="232" stroke="#e5e7eb"/>
+    <text x="32" y="252" font-size="11" font-weight="600" fill="#111827" font-family="monospace">v1.3.0</text>
+    <rect x="84" y="240" width="32" height="14" fill="#dcfce7" rx="2"/>
+    <text x="100" y="251" text-anchor="middle" font-size="9" fill="#166534">最新</text>
+    <text x="140" y="252" font-size="11" fill="#3370ff">📂 数据 · 🧠 模型 · 💻 代码</text>
+    <text x="260" y="252" font-size="11" fill="#6b7280">新增夜间场景样本500条；优化锚框配置</text>
+    <text x="560" y="252" font-size="11" fill="#374151">2026-05-20</text>
+    <text x="660" y="252" font-size="11" fill="#3370ff">下载</text>
+    <line x1="20" y1="262" x2="740" y2="262" stroke="#e5e7eb"/>
+    <text x="32" y="282" font-size="11" font-weight="600" fill="#111827" font-family="monospace">v1.2.0</text>
+    <text x="140" y="282" font-size="11" fill="#3370ff">📂 数据 · 🧠 模型</text>
+    <text x="260" y="282" font-size="11" fill="#6b7280">数据增强扩充至6800样本</text>
+    <text x="560" y="282" font-size="11" fill="#374151">2026-04-28</text>
+    <text x="660" y="282" font-size="11" fill="#3370ff">下载 · 切换</text>
+  </svg>
+</div>
+
+<h4>头部信息区</h4>
+<table>
+  <thead><tr><th style="width:110px">元素</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>面包屑</td><td>「数据云盘 / {工程项目名} / {服务名}」，<strong>三段都可点击</strong>；「数据云盘」回列表，「{工程项目名}」回项目详情</td></tr>
+    <tr><td>类型图标</td><td>大图标（52×52px），背景色与任务类型对应</td></tr>
+    <tr><td>所属上下文</td><td>副文字，格式：「{产线名} 产线 · {工程项目名}」</td></tr>
+    <tr><td>服务名</td><td>加粗大字，右侧展示可见性标签（🔒 私有 / 🌐 公开）</td></tr>
+    <tr><td>标签行</td><td>产线 / 任务类型 / 版本号 / 部署方式 / 业务服务 ID / 含模型标签</td></tr>
+    <tr><td>统计信息行</td><td>Service ID（可点击复制）/ 文件数量 / 存储大小 / 最后更新时间</td></tr>
+    <tr><td>操作按钮</td><td>「🚀 发布版本」（主按钮）/ 「设置」（默认按钮）</td></tr>
+  </tbody>
+</table>
+
+<h4>Tab 结构</h4>
+<table>
+  <thead><tr><th style="width:130px">Tab</th><th style="width:90px">类型</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>📋 版本历史</td><td>普通 Tab</td><td>所有发版记录列表（默认激活）</td></tr>
+    <tr><td>📂 数据文件</td><td>普通 Tab</td><td>最新版本的数据文件目录树</td></tr>
+    <tr><td>🧠 模型文件</td><td>普通 Tab</td><td>最新版本的模型权重文件列表</td></tr>
+    <tr><td>💻 代码文件</td><td>普通 Tab</td><td>最新版本的训练/推理代码文件列表</td></tr>
+    <tr><td>📄 接口文档 ↗</td><td>外链入口</td><td>仅在服务填写了接口文档地址后显示，点击在新标签页打开；非普通 Tab，无内容面板</td></tr>
+  </tbody>
+</table>
+
+<!-- ============ 5.6 版本历史 ============ -->
+<h3 id="sec-5-6">5.6 版本历史 Tab</h3>
+<p>以表格形式展示所有版本记录，列说明如下：</p>
+<table>
+  <thead><tr><th style="width:100px">列</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>版本号</td><td>加粗 monospace，最新版本右侧附「最新」绿色徽标；下方展示 <code>storage://{服务名}/{版本号}</code> 存储路径（灰色小字）</td></tr>
+    <tr><td>内容</td><td>展示「📂 数据」「🧠 模型」「💻 代码」标签，表明本次发版包含的内容类型</td></tr>
+    <tr><td>发布说明</td><td>灰色文字，最多显示 1 行</td></tr>
+    <tr><td>时间</td><td>发版日期</td></tr>
+    <tr><td>操作</td><td>「下载」链接按钮；非最新版本额外显示「切换」链接按钮</td></tr>
+  </tbody>
+</table>
+<div class="callout callout-note">
+  <span class="callout-icon">📋</span>
+  <div class="callout-body"><strong>空状态：</strong>📋 图标 + 「暂无发版记录」 + 描述 + 「🚀 发布版本」按钮。</div>
+</div>
+
+<!-- ============ 5.7 数据文件 ============ -->
+<h3 id="sec-5-7">5.7 数据文件 Tab</h3>
+<table>
+  <thead><tr><th style="width:110px">元素</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>顶部提示行</td><td>最近一次 commit hash（monospace）+ commit 描述 + 日期；右侧展示文件数量</td></tr>
+    <tr><td>操作按钮</td><td>「🚀 发布版本」按钮</td></tr>
+    <tr><td>文件目录树</td><td>最新版本的文件/目录列表，每行含：图标 / 文件名（蓝色可点击）/ 文件大小 / 最后修改时间</td></tr>
+  </tbody>
+</table>
+
+<h4>典型目录结构（按任务类型）</h4>
+<table>
+  <thead><tr><th style="width:110px">任务类型</th><th>典型目录结构</th></tr></thead>
+  <tbody>
+    <tr><td>物体检测</td><td><code>images/</code> · <code>annotations.json</code> · <code>labels/</code> · <code>README.md</code> · <code>dataset_info.json</code></td></tr>
+    <tr><td>图片分类</td><td><code>train/</code> · <code>val/</code> · <code>test/</code> · <code>class_names.txt</code> · <code>README.md</code></td></tr>
+    <tr><td>OCR 识别</td><td><code>images/</code> · <code>annotations/</code> · <code>README.md</code></td></tr>
+    <tr><td>LLM 监督式</td><td><code>train.jsonl</code> · <code>val.jsonl</code> · <code>README.md</code></td></tr>
+    <tr><td>LLM 无监督</td><td><code>corpus.txt</code> · <code>README.md</code></td></tr>
+    <tr><td>VLM 视觉问答</td><td><code>images/</code> · <code>qa.jsonl</code> · <code>README.md</code></td></tr>
+    <tr><td>通用</td><td><code>data/</code> · <code>README.md</code></td></tr>
+  </tbody>
+</table>
+
+<!-- ============ 5.8 模型文件 ============ -->
+<h3 id="sec-5-8">5.8 模型文件 Tab</h3>
+<table>
+  <thead><tr><th style="width:110px">元素</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>顶部提示行</td><td>「最新版本：{版本号} · LakeFS 存储」；右侧展示「🚀 发布版本」按钮</td></tr>
+    <tr><td>模型文件树</td><td>顶部展示 LakeFS 存储路径；下方为文件列表</td></tr>
+  </tbody>
+</table>
+
+<h4>典型模型文件（按任务类型）</h4>
+<table>
+  <thead><tr><th style="width:110px">任务类型</th><th>模型文件</th></tr></thead>
+  <tbody>
+    <tr><td>物体检测</td><td><code>model.pt</code> · <code>model.onnx</code> · <code>inference.py</code> · <code>requirements.txt</code></td></tr>
+    <tr><td>OCR 识别</td><td><code>model.pt</code> · <code>inference.py</code> · <code>requirements.txt</code></td></tr>
+    <tr><td>图片分类</td><td><code>model.pt</code> · <code>inference.py</code> · <code>class_names.txt</code></td></tr>
+    <tr><td>LLM 监督式</td><td><code>adapter_model.safetensors</code> · <code>config.json</code> · <code>inference.py</code></td></tr>
+    <tr><td>VLM 视觉问答</td><td><code>model.pt</code> · <code>inference.py</code></td></tr>
+  </tbody>
+</table>
+
+<!-- ============ 5.9 代码文件 ============ -->
+<h3 id="sec-5-9">5.9 代码文件 Tab</h3>
+<table>
+  <thead><tr><th style="width:110px">元素</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>顶部提示行</td><td>「最新版本：{版本号} · LakeFS 存储」；右侧展示「🚀 发布版本」按钮</td></tr>
+    <tr><td>存储路径</td><td><code>lakefs://{Service ID}/main/{版本号}/code/</code></td></tr>
+    <tr><td>代码文件列表</td><td>文件行含：图标 / 文件名 / 文件大小 / 最后修改时间</td></tr>
+  </tbody>
+</table>
+
+<h4>典型代码文件（按任务类型）</h4>
+<table>
+  <thead><tr><th style="width:110px">任务类型</th><th>代码文件</th></tr></thead>
+  <tbody>
+    <tr><td>物体检测</td><td><code>train.py</code> · <code>inference.py</code> · <code>dataset.py</code> · <code>config.yaml</code> · <code>requirements.txt</code></td></tr>
+    <tr><td>OCR 识别</td><td><code>train.py</code> · <code>inference.py</code> · <code>requirements.txt</code></td></tr>
+    <tr><td>图片分类</td><td><code>train.py</code> · <code>inference.py</code> · <code>data_loader.py</code> · <code>requirements.txt</code></td></tr>
+    <tr><td>LLM 监督式</td><td><code>finetune.py</code> · <code>inference.py</code> · <code>data_utils.py</code> · <code>requirements.txt</code></td></tr>
+    <tr><td>VLM 视觉问答</td><td><code>train.py</code> · <code>inference.py</code> · <code>requirements.txt</code></td></tr>
+    <tr><td>文档理解</td><td><code>extract.py</code> · <code>parser.py</code> · <code>requirements.txt</code></td></tr>
+    <tr><td>通用/其他</td><td><code>train.py</code> · <code>inference.py</code> · <code>requirements.txt</code></td></tr>
+  </tbody>
+</table>
+
+<!-- ============ 5.10 发布版本 ============ -->
+<h3 id="sec-5-10">5.10 发布版本弹窗</h3>
+<p>点击「发布版本」按钮（必须在某个 <strong>服务</strong> 详情页内）后弹出，包含两种上传方式（Tab 切换）。</p>
+
+<div class="mockup">
+  <div class="mockup-title">页面布局示意 · 发布版本弹窗</div>
+  <svg viewBox="0 0 700 380" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="700" height="380" fill="#fff" stroke="#e5e7eb" rx="8"/>
+    <!-- header -->
+    <rect x="0" y="0" width="700" height="44" fill="#fafbfc"/>
+    <text x="20" y="28" font-size="14" font-weight="700" fill="#111827">🚀 发布版本 · 资信标抽取</text>
+    <text x="680" y="28" text-anchor="end" font-size="14" fill="#9ca3af">✕</text>
+    <line x1="0" y1="44" x2="700" y2="44" stroke="#e5e7eb"/>
+    <!-- tab 切换 -->
+    <rect x="20" y="60" width="100" height="28" fill="#3370ff" rx="4"/>
+    <text x="70" y="78" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">📦 网页上传</text>
+    <rect x="124" y="60" width="120" height="28" fill="#fff" stroke="#d9d9d9" rx="4"/>
+    <text x="184" y="78" text-anchor="middle" font-size="11" fill="#374151">💻 命令行推送</text>
+    <!-- 目录规范折叠面板 -->
+    <rect x="20" y="100" width="660" height="80" fill="#fafbfc" stroke="#e5e7eb" rx="4"/>
+    <text x="32" y="118" font-size="11" font-weight="600" fill="#374151">📋 目录规范</text>
+    <text x="32" y="135" font-size="10" font-family="monospace" fill="#6b7280">resume-extract/</text>
+    <text x="42" y="148" font-size="10" font-family="monospace" fill="#0958d9">├── data/      ← 数据文件</text>
+    <text x="42" y="161" font-size="10" font-family="monospace" fill="#15803d">├── models/    ← 模型文件 (可选)</text>
+    <text x="42" y="174" font-size="10" font-family="monospace" fill="#d46b08">├── code/      ← 代码 (可选)</text>
+    <!-- 字段区 -->
+    <text x="20" y="208" font-size="11" font-weight="600" fill="#111827">版本号 *</text>
+    <rect x="20" y="216" width="320" height="28" fill="#fff" stroke="#d9d9d9" rx="4"/>
+    <text x="32" y="234" font-size="11" font-family="monospace" fill="#374151">v1.4.0</text>
+    <text x="360" y="208" font-size="11" font-weight="600" fill="#111827">发布时间</text>
+    <rect x="360" y="216" width="320" height="28" fill="#fff" stroke="#d9d9d9" rx="4"/>
+    <text x="372" y="234" font-size="11" fill="#9ca3af">20260522（选填，默认当前日期）</text>
+    <text x="20" y="264" font-size="11" font-weight="600" fill="#111827">发布说明 *</text>
+    <rect x="20" y="272" width="660" height="44" fill="#fff" stroke="#d9d9d9" rx="4"/>
+    <text x="32" y="290" font-size="11" fill="#9ca3af">描述本次发版的数据更新、模型改动、指标变化...</text>
+    <!-- footer -->
+    <line x1="0" y1="336" x2="700" y2="336" stroke="#e5e7eb"/>
+    <rect x="540" y="346" width="60" height="26" fill="#fff" stroke="#d9d9d9" rx="4"/>
+    <text x="570" y="364" text-anchor="middle" font-size="11" fill="#374151">取消</text>
+    <rect x="608" y="346" width="72" height="26" fill="#3370ff" rx="4"/>
+    <text x="644" y="364" text-anchor="middle" font-size="11" font-weight="600" fill="#fff">确认发布</text>
+  </svg>
+</div>
+
+<h4>Tab 1：网页上传</h4>
+
+<p><strong>目录规范说明区</strong>（弹窗顶部折叠面板）：</p>
+<pre><code>{服务名}/
+├── data/            <span class="cmt">← 数据文件（图片/标注/语料等）</span>
+│   └── {类型相关文件}
+├── models/          <span class="cmt">← 模型文件（可选）</span>
+│   └── model.pt  model.onnx
+├── code/            <span class="cmt">← 训练 / 推理代码（可选）</span>
+│   └── train.py  inference.py  requirements.txt
+└── README.md        <span class="cmt">← 首版必须，描述服务背景与使用说明</span></code></pre>
+
+<div class="callout callout-warn">
+  <span class="callout-icon">⚠️</span>
+  <div class="callout-body">首版发布时顶部展示「首版必须包含 README.md」橙色提示。</div>
+</div>
+
+<h4>字段说明</h4>
+<table>
+  <thead><tr><th style="width:120px">字段</th><th style="width:130px">类型</th><th style="width:120px">必填</th><th>规则</th></tr></thead>
+  <tbody>
+    <tr><td>版本号</td><td>文本输入</td><td><span class="chip chip-req">必填</span></td><td>格式如 <code>v1.2.0</code>；首版自动预填 <code>v1.0.0</code>，后续版本在上一版本基础上 patch +1</td></tr>
+    <tr><td>发布说明</td><td>文本域</td><td><span class="chip chip-req">必填</span></td><td>描述本次发版的数据更新、模型改动、指标变化等</td></tr>
+    <tr><td>发布时间</td><td>文本输入（8 位日期，如 20260521）</td><td><span class="chip chip-opt">选填</span></td><td>不填时默认使用当前日期</td></tr>
+    <tr><td>上传文件</td><td>文件拖拽区</td><td><span class="chip chip-cond">条件必填</span></td><td>网页上传模式必填；点击或拖拽 <code>.zip</code> 文件；包内含 <code>data/</code> + <code>models/</code>（可选）+ <code>code/</code>（可选）+ <code>README.md</code>（首版必须）</td></tr>
+  </tbody>
+</table>
+
+<h4>上传流程</h4>
+<ol>
+  <li>选择文件后点击「开始上传」，弹窗进入上传进度状态</li>
+  <li>进度条分步展示：<code>校验文件格式 → 解压 → 导入数据 → 处理标注 → 建立索引 → 完成</code></li>
+  <li>上传完成后展示结果摘要（成功导入 / 重复去除 / 已标注 / 未标注 / 格式错误 各数量）</li>
+  <li>点击「完成」关闭弹窗，版本记录立即出现在版本历史 Tab</li>
+</ol>
+<p>点击「后台处理」可隐藏弹窗，上传任务在后台继续执行。</p>
+
+<h4>Tab 2：命令行推送</h4>
+<p>基于 <code>lakectl</code>（LakeFS 官方 CLI），分 3 步操作：</p>
+
+<p><strong>Step 1 — 写入环境变量（首次，加到 <code>~/.bashrc</code> 后 source 生效）</strong></p>
+<pre><code>export LAKECTL_SERVER_ENDPOINT_URL=https://lakefs.cvforce.example.com
+export LAKECTL_CREDENTIALS_ACCESS_KEY_ID=&lt;your-access-key&gt;
+export LAKECTL_CREDENTIALS_SECRET_ACCESS_KEY=&lt;your-secret-key&gt;
+
+<span class="cmt"># 安装 lakectl（首次）</span>
+curl -L https://lakefs.cvforce.example.com/dl/lakectl -o /usr/local/bin/lakectl &amp;&amp; chmod +x /usr/local/bin/lakectl</code></pre>
+
+<p><strong>Step 2 — 设置当前服务仓库路径（每个服务设置一次，Service ID 自动填入）</strong></p>
+<pre><code>export REPO=lakefs://{Service ID}/main</code></pre>
+
+<p><strong>Step 3 — 上传目录 &amp; 提交版本（每次发版执行）</strong></p>
+<pre><code>lakectl fs upload -r $REPO/data/ ./data/
+lakectl fs upload -r $REPO/models/ ./models/
+lakectl fs upload -r $REPO/code/ ./code/
+lakectl commit $REPO -m "v1.2.0: 新增夜间场景样本500条"</code></pre>
+
+<div class="callout callout-tip">
+  <span class="callout-icon">💡</span>
+  <div class="callout-body"><code>lakectl fs upload</code> 只传差异对象；<code>lakectl commit</code> 完成后平台 Webhook 自动入库，记录出现在「版本历史」列表。</div>
+</div>
+<p>此 Tab 仅展示指令，无上传按钮（「确认发布」按钮在此 Tab 隐藏）。</p>
+
+<!-- ============ 5.11 设置 ============ -->
+<h3 id="sec-5-11">5.11 设置</h3>
+
+<h4>工程项目设置（项目详情页 → 设置按钮）</h4>
+<table>
+  <thead><tr><th style="width:110px">字段</th><th style="width:120px">类型</th><th>规则</th></tr></thead>
+  <tbody>
+    <tr><td>项目名称</td><td>文本输入</td><td><span class="chip chip-req">必填</span>，修改后点击「保存修改」生效</td></tr>
+    <tr><td>项目描述</td><td>文本域</td><td><span class="chip chip-opt">选填</span></td></tr>
+    <tr><td>负责人</td><td>文本输入</td><td><span class="chip chip-req">必填</span></td></tr>
+    <tr><td>所属产线</td><td>单选下拉</td><td><span class="chip chip-req">必填</span></td></tr>
+    <tr><td>可见性</td><td>私有 / 公开</td><td>切换为公开时弹出确认弹窗（需输入项目名称）</td></tr>
+  </tbody>
+</table>
+<div class="callout callout-note">
+  <span class="callout-icon">🚧</span>
+  <div class="callout-body">当前版本设置功能仅 placeholder，弹 Toast 提示「开发中」；正式上线时按上表实现。</div>
+</div>
+
+<h4>服务设置（服务详情页 → Tab 内嵌设置区）</h4>
+<table>
+  <thead><tr><th style="width:110px">字段</th><th style="width:120px">类型</th><th>规则</th></tr></thead>
+  <tbody>
+    <tr><td>服务名称</td><td>文本输入</td><td><span class="chip chip-req">必填</span>，修改后点击「保存修改」生效</td></tr>
+    <tr><td>服务描述</td><td>文本域</td><td><span class="chip chip-opt">选填</span></td></tr>
+    <tr><td>可见性</td><td>私有 / 公开</td><td>切换为公开时弹出「发布至共享数据」确认弹窗</td></tr>
+  </tbody>
+</table>
+
+<h4>危险操作区（预留）</h4>
+<div class="callout callout-danger">
+  <span class="callout-icon">⚠️</span>
+  <div class="callout-body">后续版本规划：删除服务、删除项目（需二次确认，删除后版本记录不可恢复）。</div>
+</div>
+
+<hr>
+
+<!-- ===================== 六、验收标准 ===================== -->
+<!-- ===================== 六、权限设计 ===================== -->
+<h2 id="sec-6">六、权限设计</h2>
+
+<p>数据云盘围绕「创建、发版、删除」三类核心操作设计权限。所有已登录用户都能创建项目和服务、发布版本，<strong>只对「删除」做收敛</strong>：自己创建的服务自己可删，租户管理员可删任意，已共享出去的资产任何人都不能删。</p>
+
+<h3 id="sec-6-1">6.1 角色定义</h3>
+<table>
+  <thead><tr><th style="width:130px">角色</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><span class="chip chip-keep">普通成员</span></td><td>所有已登录平台的用户</td></tr>
+    <tr><td><span class="chip chip-new">创建者</span></td><td>创建该工程项目 / 服务的用户（记录在资产的 <code>creator</code> 字段）</td></tr>
+    <tr><td><span class="chip chip-req">租户管理员</span></td><td>平台授予租户管理员角色的用户（跨项目、跨服务有管理权）</td></tr>
+  </tbody>
+</table>
+
+<h3 id="sec-6-2">6.2 权限矩阵</h3>
+<table>
+  <thead><tr>
+    <th>操作</th>
+    <th style="text-align:center;width:90px">普通成员</th>
+    <th style="text-align:center;width:180px">创建者（自己创建的资产）</th>
+    <th style="text-align:center;width:120px">租户管理员</th>
+  </tr></thead>
+  <tbody>
+    <tr><td>创建工程项目</td><td style="text-align:center;color:#15803d;font-weight:600">✅</td><td style="text-align:center;color:#9ca3af">—</td><td style="text-align:center;color:#15803d;font-weight:600">✅</td></tr>
+    <tr><td>在项目下创建服务</td><td style="text-align:center;color:#15803d;font-weight:600">✅</td><td style="text-align:center;color:#9ca3af">—</td><td style="text-align:center;color:#15803d;font-weight:600">✅</td></tr>
+    <tr><td>发布版本（发版）</td><td style="text-align:center;color:#15803d;font-weight:600">✅</td><td style="text-align:center;color:#9ca3af">—</td><td style="text-align:center;color:#15803d;font-weight:600">✅</td></tr>
+    <tr><td>修改项目 / 服务设置</td><td style="text-align:center;color:#15803d;font-weight:600">✅</td><td style="text-align:center;color:#15803d;font-weight:600">✅</td><td style="text-align:center;color:#15803d;font-weight:600">✅</td></tr>
+    <tr><td>删除服务</td><td style="text-align:center;color:#cf1322;font-weight:600">❌</td><td style="text-align:center;color:#15803d;font-weight:600">✅（仅自己创建的）</td><td style="text-align:center;color:#15803d;font-weight:600">✅（任意服务）</td></tr>
+    <tr><td>删除工程项目</td><td style="text-align:center;color:#cf1322;font-weight:600">❌</td><td style="text-align:center;color:#cf1322;font-weight:600">❌</td><td style="text-align:center;color:#15803d;font-weight:600">✅</td></tr>
+    <tr><td>删除已共享至共享数据的项目 / 服务</td><td style="text-align:center;color:#cf1322;font-weight:600">❌</td><td style="text-align:center;color:#cf1322;font-weight:600">❌</td><td style="text-align:center;color:#cf1322;font-weight:600">❌</td></tr>
+  </tbody>
+</table>
+
+<h3 id="sec-6-3">6.3 特殊约束</h3>
+<div class="callout callout-warn">
+  <span class="callout-icon">⚠️</span>
+  <div class="callout-body">
+    <strong>共享数据保护（后续规划）：</strong>已发布到共享数据的工程项目或服务，<strong>任何角色（含租户管理员）都不能直接删除</strong>。如需删除，需先在「共享数据」中执行「下架」操作，撤回到私有状态后才能删除。
+  </div>
+</div>
+<ul>
+  <li><strong>项目删除前置条件：</strong>删除工程项目前，需先清空其下所有服务（或租户管理员选择"同步删除项目及其下所有服务"，需二次确认）</li>
+  <li><strong>删除操作均需二次确认：</strong>删除按钮触发后弹出确认弹窗，要求用户输入项目 / 服务名称进行二次确认</li>
+  <li><strong>删除采用软删除：</strong>服务删除后，相关 LakeFS 仓库做标记删除（不立刻物理删除），保留 30 天回收窗口；超期由后台任务清理物理资源</li>
+</ul>
+
+<h3 id="sec-6-4">6.4 权限校验位置</h3>
+<table>
+  <thead><tr><th style="width:90px">校验时机</th><th>校验内容</th></tr></thead>
+  <tbody>
+    <tr><td>前端</td><td>根据当前用户角色控制「删除」按钮的展示 / 灰禁：非创建者且非管理员时，删除按钮<strong>隐藏</strong>；已共享资产的删除按钮在所有角色下都<strong>隐藏</strong></td></tr>
+    <tr><td>接口</td><td>后端在每个写操作接口（create / publish / delete）二次校验当前用户是否具备权限；前端隐藏只为体验优化，权限以后端为准</td></tr>
+    <tr><td>审计</td><td>所有删除操作记录到审计日志（操作人、时间、操作对象、操作前后状态），保留 6 个月</td></tr>
+  </tbody>
+</table>
+
+<hr>
+
+<h2 id="sec-7">七、验收标准</h2>
+
+<h3>7.1 列表页 —— 展示与筛选（工程项目）</h3>
+<ul>
+  <li>数据云盘列表以<strong>工程项目卡片</strong>形式展示，每张卡片包含：产线标签、项目名、描述、可见性标签、🧩 服务数、📋 发版数、🧠 含模型服务数、负责人、更新时间</li>
+  <li>搜索框实时过滤（按项目名 / 描述 / 产线 / 负责人），与产线筛选组合使用时为「且」关系</li>
+  <li>筛选无结果时展示「未找到匹配的项目」空状态；无任何项目时展示「暂无工程项目」引导</li>
+  <li>卡片 Hover 时右上角出现「查看」快捷按钮</li>
+</ul>
+
+<h3>7.2 新建工程项目</h3>
+<ul>
+  <li>「新建项目」弹窗包含：项目名称（必填）、所属产线（必填、含新建产线）、负责人（必填）、项目描述（选填）、初始可见性（默认私有）</li>
+  <li>顶部展示「工程项目是一个业务方向…」蓝色解释信息条</li>
+  <li>项目名称、产线、负责人任一为空时不能提交并弹出校验提示</li>
+  <li>所属产线选择「+ 新建产线」时行内展示输入框</li>
+  <li>创建成功后跳转项目详情页，并<strong>自动弹出「新建服务」弹窗</strong>引导</li>
+</ul>
+
+<h3>7.3 工程项目详情页</h3>
+<ul>
+  <li>面包屑展示「数据云盘 / {项目名}」</li>
+  <li>头部展示：📦 项目图标、产线、项目名、可见性标签、项目描述、操作按钮（＋ 新建服务 / 设置）</li>
+  <li>统计行展示：Project ID（点击复制）、服务数、负责人、最近更新时间</li>
+  <li>项目下若无服务展示空状态引导</li>
+  <li>项目下有服务时以卡片网格形式展示所有服务</li>
+</ul>
+
+<h3>7.4 项目内新建服务</h3>
+<ul>
+  <li>「新建服务」弹窗标题展示「新建服务 · {所属项目名}」</li>
+  <li>顶部展示「一个服务 = 一个 AI 能力单元 = 一个独立的 LakeFS 仓库」绿色解释信息条</li>
+  <li>包含字段：服务名称（必填、格式校验）、部署方式（必填）、任务类型（必填，7 种）、服务负责人（必填，默认=当前用户）、服务描述（选填）、关联业务服务 ID（选填、多个）、接口文档地址（选填，URL）</li>
+  <li>产线和可见性<strong>继承自所属工程项目</strong>（不再展示给用户选择）</li>
+  <li>创建成功后：服务出现在项目详情服务列表顶部，自动跳转至服务详情，并弹出发布版本弹窗</li>
+</ul>
+
+<h3>7.5 服务详情页 —— 头部信息 &amp; Tab</h3>
+<ul>
+  <li>面包屑展示「数据云盘 / {工程项目名} / {服务名}」，<strong>三段均可点击导航</strong></li>
+  <li>头部副文字格式：「{产线名} 产线 · {工程项目名}」</li>
+  <li>Tab 条包含：版本历史 / 数据文件 / 模型文件 / 代码文件</li>
+  <li>服务填写了接口文档地址（创建服务时或在「服务设置」中），Tab 条右侧出现「📄 接口文档 ↗」外链入口</li>
+  <li>统计行展示 Service ID（点击复制）、文件数量、存储大小、最后更新时间</li>
+</ul>
+
+<h3>7.6 版本历史 Tab</h3>
+<ul>
+  <li>以表格展示所有版本：版本号（含最新徽标和存储路径）、内容类型（数据/模型/代码）、发布说明、发布人、时间、操作（下载/切换）</li>
+  <li>最新版本显示「最新」绿色徽标；非最新版本显示「切换」操作按钮</li>
+  <li>无发版记录时展示引导空状态</li>
+</ul>
+
+<h3>7.7 数据文件 / 模型文件 / 代码文件 Tab</h3>
+<ul>
+  <li>展示最新版本的目录树，含 commit hash 或 LakeFS 存储路径</li>
+  <li>文件行含：图标、文件名、大小、修改时间</li>
+  <li>顶部右侧展示「🚀 发布版本」入口</li>
+  <li>无内容时展示对应空状态引导</li>
+</ul>
+
+<h3>7.8 发布版本弹窗 —— 网页上传</h3>
+<ul>
+  <li>弹窗顶部展示目录规范说明，含 <code>data/</code>、<code>models/</code>（可选）、<code>code/</code>（可选）、<code>README.md</code></li>
+  <li>版本号首版预填 <code>v1.0.0</code>，后续版本自动 +1</li>
+  <li>版本号、发布说明为必填</li>
+  <li>文件选择区支持点击 / 拖拽 <code>.zip</code></li>
+  <li>上传期间展示分步进度条；上传完成后展示结果摘要</li>
+</ul>
+
+<h3>7.9 发布版本弹窗 —— 命令行推送</h3>
+<ul>
+  <li>CLI Tab 展示 3 步操作：环境变量配置（含 lakectl 安装）/ 设置服务 REPO 路径（Service ID 自动填入）/ 上传 data/、models/、code/ 目录并 commit</li>
+  <li>每步代码块右上角提供「复制」按钮</li>
+  <li>CLI Tab 下「确认发布」按钮隐藏</li>
+</ul>
+
+<h3>7.10 设置</h3>
+<ul>
+  <li>工程项目设置：修改项目名/描述/负责人/可见性，保存后列表页和项目详情同步更新</li>
+  <li>服务设置：修改服务名 / 描述 / 负责人 / 接口文档地址 / 可见性，保存后服务详情和所属项目的服务列表同步更新；变更负责人用于团队交接场景，新负责人接管后续发版与设置变更权；接口文档地址更新后服务详情页 Tab 条的「📄 接口文档 ↗」入口立即生效</li>
+  <li>切换可见性为「公开」时弹出确认弹窗（需输入项目/服务名称）</li>
+</ul>
+
+<h3>7.11 删除 &amp; 权限</h3>
+<ul>
+  <li>删除按钮的展示遵循 §6 权限设计：非创建者且非租户管理员时，删除按钮<strong>隐藏</strong></li>
+  <li>已共享至共享数据的项目 / 服务，删除按钮在所有角色下都<strong>隐藏</strong></li>
+  <li>点击删除按钮弹出二次确认弹窗，要求输入项目 / 服务名称</li>
+  <li>删除工程项目时，若项目下仍有服务，需先清空（或租户管理员选择"同步删除项目及其下所有服务"）</li>
+  <li>删除采用软删除，30 天内可联系管理员恢复，超期由后台清理物理资源</li>
+  <li>后端在每个写操作接口二次校验权限，前端隐藏仅为体验优化</li>
+</ul>
+
+<hr>
+
+</main>
+</div>
+
+</body>
+</html>
