@@ -1,0 +1,2995 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>资产管理 · 行业AI平台</title>
+<style>
+/* ===== RESET & BASE ===== */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif;font-size:14px;color:rgba(0,0,0,.85);background:#f4f4f4;height:100vh;overflow:hidden}
+a{text-decoration:none}
+button{cursor:pointer;font-family:inherit}
+
+/* ===== DESIGN TOKENS ===== */
+:root{
+  --primary:#508bee;
+  --primary-hover:#3d7ad6;
+  --primary-light:#e8f1fd;
+  --header-bg:#2f3753;
+  --sidebar-bg:#2f3753;
+  --sidebar-active:rgba(255,255,255,.22);
+  --sidebar-hover:rgba(255,255,255,.1);
+  --body-bg:#f4f4f4;
+  --card-bg:#fff;
+  --border:#f0f0f0;
+  --border-mid:#e8e8e8;
+  --text-primary:rgba(0,0,0,.85);
+  --text-secondary:rgba(0,0,0,.45);
+  --text-tertiary:rgba(0,0,0,.25);
+  --success:#52c41a;
+  --error:#f5222d;
+  --warning:#faad14;
+  --orange:#fa8c16;
+  --purple:#722ed1;
+  --cyan:#13c2c2;
+  --pink:#eb2f96;
+  --header-h:48px;
+  --sidebar-w:200px;
+  --radius:6px;
+}
+
+/* ===== LAYOUT ===== */
+.app{display:flex;flex-direction:column;height:100vh}
+.header{height:var(--header-h);background:var(--header-bg);display:flex;align-items:center;flex-shrink:0;z-index:100;padding-right:24px}
+.header-logo{width:var(--sidebar-w);display:flex;align-items:center;gap:10px;padding:0 16px;color:#fff;font-size:15px;font-weight:600;flex-shrink:0;border-right:1px solid rgba(255,255,255,.08)}
+.logo-mark{width:28px;height:28px;background:var(--primary);border-radius:6px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;flex-shrink:0}
+.header-product{display:flex;align-items:center;padding:0 16px;color:rgba(255,255,255,.5);font-size:13px}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:16px}
+.avatar-sm{width:28px;height:28px;background:var(--primary);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:500;cursor:pointer}
+.header-user{font-size:13px;color:rgba(255,255,255,.7);cursor:pointer;display:flex;align-items:center;gap:6px}
+.header-user:hover{color:#fff}
+.header-icon-btn{width:28px;height:28px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.5);cursor:pointer;border-radius:4px;font-size:15px}
+.header-icon-btn:hover{color:#fff;background:rgba(255,255,255,.1)}
+
+.main{display:flex;flex:1;overflow:hidden}
+
+/* ===== SIDEBAR ===== */
+.sidebar{width:var(--sidebar-w);background:var(--sidebar-bg);flex-shrink:0;display:flex;flex-direction:column;overflow-y:auto}
+.sidebar-section{padding-top:4px}
+.sidebar-group{padding:12px 24px 4px;font-size:11px;letter-spacing:.6px;text-transform:uppercase;color:rgba(255,255,255,.3);font-weight:500;user-select:none}
+.menu-item{display:flex;align-items:center;gap:9px;padding:0 24px;height:40px;color:rgba(255,255,255,.6);cursor:pointer;transition:.15s;font-size:14px}
+.menu-item:hover{color:#fff;background:var(--sidebar-hover)}
+.menu-item.active{color:#fff;background:var(--sidebar-active)}
+.menu-icon{font-size:15px;width:16px;text-align:center;flex-shrink:0}
+.menu-badge{margin-left:auto;background:var(--primary);color:#fff;font-size:10px;padding:1px 5px;border-radius:8px;font-weight:500}
+.sidebar-divider{height:1px;background:rgba(255,255,255,.08);margin:6px 0}
+
+/* ===== CONTENT AREA ===== */
+.content{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.page{display:none;flex:1;flex-direction:column;overflow:hidden}
+.page.active{display:flex}
+
+/* ===== PAGE HEADER ===== */
+.page-header{background:#fff;padding:0 24px;height:54px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0}
+.page-title{font-size:15px;font-weight:600;color:var(--text-primary)}
+.page-subtitle{font-size:12px;color:var(--text-secondary);margin-top:1px}
+.page-body{flex:1;overflow-y:auto;padding:20px 24px}
+
+/* ===== BUTTONS ===== */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;height:32px;padding:0 15px;border-radius:4px;border:1px solid transparent;font-size:13.5px;font-weight:400;transition:.15s;white-space:nowrap;cursor:pointer;line-height:1}
+.btn-primary{background:var(--primary);color:#fff;border-color:var(--primary)}
+.btn-primary:hover{background:var(--primary-hover);border-color:var(--primary-hover)}
+.btn-default{background:#fff;color:var(--text-primary);border-color:#d9d9d9}
+.btn-default:hover{color:var(--primary);border-color:var(--primary)}
+.btn-link{background:none;border:none;color:var(--primary);padding:0 6px;height:auto;font-size:13px}
+.btn-link:hover{color:var(--primary-hover);text-decoration:underline}
+.btn-danger-link{background:none;border:none;color:var(--error);padding:0 6px;height:auto;font-size:13px}
+.btn-sm{height:26px;padding:0 10px;font-size:12px}
+.btn-ghost{background:rgba(255,255,255,.1);color:#fff;border-color:rgba(255,255,255,.2)}
+.btn-ghost:hover{background:rgba(255,255,255,.2)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* ===== FORM CONTROLS ===== */
+.input{height:32px;padding:4px 11px;border:1px solid #d9d9d9;border-radius:4px;font-size:13.5px;outline:none;transition:.2s;background:#fff;color:var(--text-primary);width:100%}
+.input:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(80,139,238,.15)}
+.input::placeholder{color:rgba(0,0,0,.3)}
+.select{height:32px;padding:4px 28px 4px 11px;border:1px solid #d9d9d9;border-radius:4px;font-size:13.5px;outline:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23999'/%3E%3C/svg%3E") no-repeat right 10px center;appearance:none;cursor:pointer}
+.select:focus{border-color:var(--primary)}
+.textarea{width:100%;padding:8px 11px;border:1px solid #d9d9d9;border-radius:4px;font-size:13.5px;outline:none;resize:vertical;min-height:80px;font-family:inherit;transition:.2s}
+.textarea:focus{border-color:var(--primary);box-shadow:0 0 0 2px rgba(80,139,238,.15)}
+
+/* ===== SEARCH BOX ===== */
+.search-wrap{position:relative;display:inline-flex;align-items:center}
+.search-wrap .input{padding-left:34px}
+.search-icon{position:absolute;left:10px;color:var(--text-secondary);pointer-events:none;font-size:14px}
+
+/* ===== TAGS ===== */
+.tag{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:3px;font-size:12px;font-weight:400;white-space:nowrap}
+.tag-detection{background:#e6f4ff;color:#1677ff;border:1px solid #91caff}
+.tag-classification{background:#f9f0ff;color:#722ed1;border:1px solid #d3adf7}
+.tag-ocr{background:#e6fffb;color:#13c2c2;border:1px solid #87e8de}
+.tag-llm{background:#fff7e6;color:#d46b08;border:1px solid #ffd591}
+.tag-vlm{background:#fff0f6;color:#c41d7f;border:1px solid #ffadd2}
+.tag-common{background:#f5f5f5;color:#595959;border:1px solid #d9d9d9}
+.tag-size{background:#f6ffed;color:#389e0d;border:1px solid #b7eb8f}
+.tag-license{background:#f4f4f4;color:#666;border:1px solid #e0e0e0}
+.tag-lang{background:#e6f7ff;color:#0958d9;border:1px solid #91d5ff}
+.tag-public{background:#f6ffed;color:#389e0d;border:1px solid #b7eb8f}
+.tag-private{background:#f5f5f5;color:#8c8c8c;border:1px solid #d9d9d9}
+
+/* ===== CARD GRID (Cloud Disk) ===== */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px}
+.ds-card{background:#fff;border:1px solid var(--border-mid);border-radius:var(--radius);padding:16px;cursor:pointer;transition:.2s;position:relative;overflow:hidden}
+.ds-card{cursor:pointer}
+.ds-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.1);border-color:var(--primary);transform:translateY(-2px)}
+.ds-card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.ds-type-icon{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:var(--primary-light)}
+.ds-card-meta{flex:1;min-width:0}
+.ds-card-org{font-size:11px;color:var(--text-secondary);margin-bottom:2px}
+.ds-card-name{font-size:14px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4}
+.ds-card-visibility{position:absolute;top:12px;right:12px;font-size:11px;padding:2px 7px;border-radius:10px}
+.ds-card-desc{font-size:12px;color:var(--text-secondary);line-height:1.6;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:38px}
+.ds-card-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;min-height:22px}
+.ds-card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--text-secondary)}
+.ds-card-stats{display:flex;align-items:center;gap:10px}
+.ds-stat{display:flex;align-items:center;gap:3px}
+
+.ds-card-corner-actions{position:absolute;top:10px;right:10px;display:none;gap:4px}
+.ds-card:hover .ds-card-corner-actions{display:flex}
+.ds-corner-btn{padding:3px 8px;border-radius:4px;border:1px solid #d9d9d9;background:#fff;font-size:11px;color:var(--text-secondary);cursor:pointer;transition:.15s;line-height:1.6}
+.ds-corner-btn:hover{border-color:var(--primary);color:var(--primary)}
+.ds-corner-btn.danger:hover{border-color:var(--error);color:var(--error)}
+
+/* ===== TOOLBAR ===== */
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:18px;flex-wrap:wrap}
+.toolbar-right{margin-left:auto;display:flex;align-items:center;gap:8px}
+
+/* ===== STATS ROW ===== */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.stat-card{background:#fff;border:1px solid var(--border-mid);border-radius:var(--radius);padding:14px 18px}
+.stat-label{font-size:12px;color:var(--text-secondary);margin-bottom:6px}
+.stat-value{font-size:22px;font-weight:600;color:var(--text-primary)}
+.stat-value.blue{color:var(--primary)}
+.stat-value.green{color:var(--success)}
+.stat-value.orange{color:var(--orange)}
+.stat-sub{font-size:11px;color:var(--text-secondary);margin-top:3px}
+
+/* ===== BREADCRUMB ===== */
+.breadcrumb{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--text-secondary);margin-bottom:16px}
+.breadcrumb a{color:var(--primary);cursor:pointer}
+.breadcrumb a:hover{text-decoration:underline}
+.bc-sep{color:var(--text-tertiary)}
+
+/* ===== TABS ===== */
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:0;background:#fff}
+.tab-item{padding:11px 20px;cursor:pointer;font-size:13.5px;color:var(--text-secondary);border-bottom:2px solid transparent;margin-bottom:-1px;transition:.15s;display:flex;align-items:center;gap:6px}
+.tab-item:hover{color:var(--primary)}
+.tab-item.active{color:var(--primary);border-bottom-color:var(--primary);font-weight:500}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* ===== DETAIL PAGE ===== */
+.detail-header{background:#fff;border-bottom:1px solid var(--border);padding:20px 24px 0}
+.detail-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:16px}
+.detail-icon{width:52px;height:52px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;background:var(--primary-light);flex-shrink:0}
+.detail-meta{flex:1;min-width:0}
+.detail-org{font-size:12px;color:var(--text-secondary);margin-bottom:3px}
+.detail-name{font-size:20px;font-weight:700;color:var(--text-primary);margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.detail-tags{display:flex;gap:6px;flex-wrap:wrap}
+.detail-actions{display:flex;gap:8px;flex-shrink:0}
+.detail-stats{display:flex;align-items:center;gap:16px;padding:12px 0;border-top:1px solid var(--border);font-size:12px;color:var(--text-secondary)}
+.detail-stat-item{display:flex;align-items:center;gap:5px}
+
+/* ===== FILE TREE ===== */
+.file-tree-header{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:#f7f7f8;border-bottom:1px solid var(--border);border-radius:4px 4px 0 0;font-size:12px;color:var(--text-secondary)}
+.file-tree-commit{display:flex;align-items:center;gap:6px}
+.file-row{display:flex;align-items:center;padding:9px 16px;border-bottom:1px solid var(--border);transition:.15s;font-size:13px;cursor:pointer}
+.file-row:last-child{border-bottom:none}
+.file-row:hover{background:#fafafa}
+.file-icon{margin-right:8px;font-size:14px;flex-shrink:0}
+.file-name{flex:1;color:var(--primary)}
+.file-name:hover{text-decoration:underline}
+.file-size{color:var(--text-secondary);font-size:12px;margin-right:32px;min-width:60px;text-align:right}
+.file-time{color:var(--text-secondary);font-size:12px;min-width:130px;text-align:right}
+.file-tree-wrap{border:1px solid var(--border);border-radius:6px;overflow:hidden}
+
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 20px;color:var(--text-secondary)}
+.empty-icon{font-size:52px;margin-bottom:14px;opacity:.35}
+.empty-title{font-size:15px;font-weight:500;margin-bottom:6px;color:var(--text-primary)}
+.empty-desc{font-size:13px;color:var(--text-secondary);margin-bottom:16px;text-align:center;max-width:360px;line-height:1.7}
+
+/* ===== PREVIEW GRID ===== */
+.preview-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.preview-item{border:1px solid var(--border);border-radius:6px;overflow:hidden;cursor:pointer;transition:.15s}
+.preview-item:hover{box-shadow:0 3px 10px rgba(0,0,0,.1);border-color:var(--primary)}
+.preview-thumb{width:100%;aspect-ratio:4/3;background:#f5f5f5;display:flex;align-items:center;justify-content:center;overflow:hidden;font-size:24px}
+.preview-item-name{padding:6px 8px;font-size:11px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* LLM preview table */
+.data-table{width:100%;border-collapse:collapse;font-size:13px}
+.data-table th{background:#fafafa;padding:10px 14px;text-align:left;font-weight:500;border-bottom:1px solid var(--border);color:var(--text-primary)}
+.data-table td{padding:10px 14px;border-bottom:1px solid var(--border);vertical-align:top;line-height:1.6}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:#fafafa}
+.data-table td:first-child{color:var(--text-secondary);max-width:320px}
+.data-table td:last-child{color:var(--text-primary);max-width:320px}
+
+/* ===== SETTINGS PAGE ===== */
+.settings-section{background:#fff;border:1px solid var(--border);border-radius:6px;padding:20px 24px;margin-bottom:16px}
+.settings-section-title{font-size:14px;font-weight:600;margin-bottom:16px;color:var(--text-primary)}
+.form-item{margin-bottom:16px}
+.form-item:last-child{margin-bottom:0}
+.form-label{display:block;font-size:13px;color:var(--text-primary);margin-bottom:6px;font-weight:500}
+.form-label .req{color:var(--error);margin-right:3px}
+.form-hint{font-size:12px;color:var(--text-secondary);margin-top:4px}
+.danger-zone{border-color:#ffa39e}
+.danger-zone .settings-section-title{color:var(--error)}
+
+/* ===== VISIBILITY TOGGLE ===== */
+.visibility-options{display:flex;gap:10px}
+.vis-opt{border:1.5px solid var(--border-mid);border-radius:6px;padding:12px 16px;cursor:pointer;flex:1;transition:.2s}
+.vis-opt:hover{border-color:var(--primary)}
+.vis-opt.selected{border-color:var(--primary);background:var(--primary-light)}
+.vis-opt-title{font-size:13px;font-weight:600;margin-bottom:3px;display:flex;align-items:center;gap:6px}
+.vis-opt-desc{font-size:12px;color:var(--text-secondary)}
+
+/* ===== SHARED DATASET (HuggingFace style) ===== */
+.shared-layout{display:flex;flex:1;overflow:hidden}
+.filter-panel{width:220px;flex-shrink:0;background:#fff;border-right:1px solid var(--border);padding:16px 0;overflow-y:auto}
+.filter-search{padding:0 12px 12px;border-bottom:1px solid var(--border);margin-bottom:4px}
+.filter-group{padding:4px 0}
+.filter-group-title{padding:8px 16px;font-size:12px;font-weight:600;color:var(--text-primary);display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none}
+.filter-group-title:hover{color:var(--primary)}
+.filter-toggle{font-size:11px;color:var(--text-secondary)}
+.filter-options{padding:0 12px 4px}
+.filter-opt{display:flex;align-items:center;gap:8px;padding:5px 4px;cursor:pointer;border-radius:3px;transition:.1s;font-size:13px;color:var(--text-secondary)}
+.filter-opt:hover{background:#f5f5f5;color:var(--text-primary)}
+.filter-opt.active{color:var(--primary);font-weight:500}
+.filter-opt input[type=checkbox]{width:13px;height:13px;cursor:pointer;accent-color:var(--primary)}
+.filter-count{margin-left:auto;font-size:11px;color:var(--text-tertiary)}
+.active-filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.filter-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;background:#e6f4ff;color:var(--primary);border-radius:12px;font-size:12px;border:1px solid #91caff}
+.filter-chip-close{cursor:pointer;font-size:11px;opacity:.7}
+.filter-chip-close:hover{opacity:1}
+
+.shared-content{flex:1;overflow-y:auto;padding:20px}
+.shared-toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.shared-card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+
+/* Shared card - slightly different style */
+.shared-card{background:#fff;border:1px solid var(--border-mid);border-radius:var(--radius);padding:16px;cursor:pointer;transition:.2s}
+.shared-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.09);border-color:#c8c8c8}
+.shared-card-header{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
+.shared-card-avatar{width:32px;height:32px;border-radius:6px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:600;flex-shrink:0}
+.shared-card-org-name{font-size:11px;color:var(--text-secondary)}
+.shared-card-name{font-size:13.5px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shared-card-desc{font-size:12px;color:var(--text-secondary);line-height:1.6;margin-bottom:8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:36px}
+.shared-card-tags{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px}
+.shared-card-footer{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--text-tertiary);padding-top:8px;border-top:1px solid var(--border)}
+.shared-card-actions{display:flex;gap:5px;opacity:0;transition:.2s}
+.shared-card:hover .shared-card-actions{opacity:1}
+
+/* ===== SHARED DETAIL ===== */
+.shared-detail-header{background:#fff;border-bottom:1px solid var(--border);padding:24px 32px 0}
+.dataset-card-content{background:#fff;border:1px solid var(--border);border-radius:6px;padding:24px;line-height:1.8;font-size:14px;color:var(--text-primary)}
+.dataset-card-content h2{font-size:16px;font-weight:600;margin:16px 0 8px}
+.dataset-card-content h3{font-size:14px;font-weight:600;margin:12px 0 6px}
+.dataset-card-content p{margin-bottom:10px;color:var(--text-secondary)}
+.dataset-card-content table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:13px}
+.dataset-card-content table th{background:#f5f5f5;padding:8px 12px;text-align:left;border:1px solid var(--border);font-weight:500}
+.dataset-card-content table td{padding:8px 12px;border:1px solid var(--border)}
+.dataset-card-content code{background:#f0f0f0;padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px}
+
+/* ===== MODAL ===== */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
+.overlay.show{display:flex}
+.modal{background:#fff;border-radius:8px;display:flex;flex-direction:column;box-shadow:0 8px 32px rgba(0,0,0,.15);max-height:90vh}
+.modal-sm{width:440px}
+.modal-md{width:560px}
+.modal-lg{width:680px}
+.modal-header{padding:0 20px;height:50px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0}
+.modal-title{font-size:15px;font-weight:600;color:var(--text-primary)}
+.modal-close{background:none;border:none;font-size:18px;color:rgba(0,0,0,.3);padding:4px;border-radius:3px;transition:.15s;line-height:1}
+.modal-close:hover{color:rgba(0,0,0,.7);background:#f5f5f5}
+.modal-body{padding:20px;overflow-y:auto;flex:1}
+.modal-footer{padding:12px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px;flex-shrink:0}
+
+/* ===== TYPE SELECTOR (create modal) ===== */
+.type-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.type-opt{border:1.5px solid var(--border-mid);border-radius:6px;padding:10px 12px;cursor:pointer;transition:.2s;display:flex;align-items:center;gap:10px}
+.type-opt:hover{border-color:var(--primary);background:var(--primary-light)}
+.type-opt.selected{border-color:var(--primary);background:var(--primary-light)}
+.type-opt-icon{width:30px;height:30px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.type-opt-label{font-size:13px;font-weight:500;margin-bottom:2px}
+.type-opt-desc{font-size:11px;color:var(--text-secondary);line-height:1.4}
+
+/* ===== UPLOAD MODAL ===== */
+.upload-zone{border:1.5px dashed #d9d9d9;border-radius:6px;padding:32px 20px;text-align:center;cursor:pointer;transition:.2s;background:#fafafa}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--primary);background:var(--primary-light)}
+.upload-zone-icon{font-size:36px;margin-bottom:10px}
+.upload-zone-title{font-size:14px;color:var(--text-primary);margin-bottom:4px}
+.upload-zone-hint{font-size:12px;color:var(--text-secondary)}
+.upload-format-box{background:#f7f8fa;border-radius:6px;padding:14px;margin-top:14px;font-size:12px;line-height:1.9;color:var(--text-secondary)}
+.upload-format-box strong{color:var(--text-primary)}
+.progress-wrap{margin-top:16px}
+.progress-bar{height:6px;background:#f0f0f0;border-radius:3px;overflow:hidden;margin-bottom:6px}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--primary),#7eb8f7);border-radius:3px;transition:width .3s}
+.progress-info{display:flex;justify-content:space-between;font-size:12px;color:var(--text-secondary)}
+.upload-result{background:#f6ffed;border:1px solid #b7eb8f;border-radius:6px;padding:14px;margin-top:12px;font-size:13px;line-height:2}
+.upload-result-item{display:flex;align-items:center;gap:6px}
+
+/* ===== PUBLISH MODAL ===== */
+.publish-warn{background:#fffbe6;border:1px solid #ffe58f;border-radius:6px;padding:14px;margin-bottom:16px;font-size:13px;line-height:1.8;color:#613400}
+.publish-confirm-input{margin-top:12px}
+.publish-confirm-label{font-size:13px;color:var(--text-secondary);margin-bottom:6px}
+.publish-confirm-label span{color:var(--text-primary);font-weight:600}
+
+/* ===== TOAST ===== */
+.toast-wrap{position:fixed;top:62px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:#fff;border-radius:6px;padding:12px 16px;display:flex;align-items:center;gap:10px;box-shadow:0 4px 16px rgba(0,0,0,.15);min-width:280px;max-width:380px;pointer-events:all;animation:slideIn .25s ease}
+@keyframes slideIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+.toast-icon{font-size:16px;flex-shrink:0}
+.toast-msg{font-size:13.5px;color:var(--text-primary)}
+.toast-close{margin-left:auto;background:none;border:none;font-size:14px;color:var(--text-secondary);cursor:pointer;padding:0 4px}
+
+/* ===== PROJECT DETAIL POLISH ===== */
+/* 工程项目 / 服务 类型徽章（头部副文字行用） */
+.entity-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500;line-height:1.6;vertical-align:middle;margin-right:8px}
+.entity-badge-prj{background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe}
+.entity-badge-svc{background:#f0fdf4;color:#166534;border:1px solid #86efac}
+
+/* 头部副文字行（取代原 detail-org 的简单文字） */
+.detail-sub{display:flex;align-items:center;flex-wrap:wrap;gap:0;font-size:12px;color:var(--text-secondary);margin-bottom:4px;line-height:1.8}
+.detail-sub .crumb-dot{margin:0 8px;color:var(--text-tertiary)}
+
+/* 头部描述行（项目详情用） */
+.detail-desc{font-size:13px;color:var(--text-secondary);line-height:1.7;margin-top:6px;max-width:780px}
+
+/* 点分隔统计行 */
+.stats-inline{display:flex;flex-wrap:wrap;align-items:center;gap:0;padding:10px 0;border-top:1px solid var(--border);font-size:12.5px;color:var(--text-secondary)}
+.stats-inline .si-item{display:inline-flex;align-items:center;gap:4px;white-space:nowrap}
+.stats-inline .si-sep{margin:0 12px;color:var(--text-tertiary)}
+.stats-inline .si-item strong{color:var(--text-primary);font-weight:600}
+.stats-inline code{font-size:12px;background:#f5f5f5;padding:1px 6px;border-radius:3px;color:var(--primary);cursor:pointer;font-family:"SFMono-Regular",Consolas,monospace}
+
+/* 项目详情区域标题 */
+.section-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.section-bar-title{font-size:14px;font-weight:600;color:var(--text-primary);display:flex;align-items:center;gap:6px}
+.section-bar-sub{font-size:12px;color:var(--text-secondary)}
+
+/* 紧凑服务卡片（仅在项目详情页用） */
+/* 固定一行 4 列，窄屏响应式降列 */
+.svc-grid-compact{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media (max-width:1200px){.svc-grid-compact{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:900px){.svc-grid-compact{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:640px){.svc-grid-compact{grid-template-columns:1fr}}
+.svc-card{background:#fff;border:1px solid var(--border-mid);border-radius:8px;padding:14px;cursor:pointer;transition:.2s;position:relative;display:flex;flex-direction:column;gap:8px;min-height:148px}
+.svc-card:hover{box-shadow:0 4px 14px rgba(0,0,0,.08);border-color:var(--primary);transform:translateY(-2px)}
+.svc-card-head{display:flex;align-items:flex-start;gap:10px}
+.svc-card-icon{width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;background:var(--primary-light)}
+.svc-card-titlewrap{flex:1;min-width:0}
+.svc-card-parent{font-size:11px;color:var(--text-tertiary);margin-bottom:2px;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.svc-card-title{font-size:13.5px;font-weight:600;color:var(--text-primary);line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.svc-card-desc{font-size:12px;color:var(--text-secondary);line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex:1}
+.svc-card-tags{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
+.svc-card-tags .tag{font-size:11px;padding:1px 7px;line-height:1.6}
+.svc-card-meta-row{display:flex;align-items:center;justify-content:space-between;font-size:11px;color:var(--text-tertiary)}
+.svc-card-meta-row .svc-meta-l{display:inline-flex;align-items:center;gap:8px}
+.svc-card-meta-row .svc-id-pill{font-family:"SFMono-Regular",Consolas,monospace;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;padding:0 5px;border-radius:3px;font-size:10.5px;line-height:1.7}
+.svc-card-corner{position:absolute;top:10px;right:10px;display:none;gap:4px}
+.svc-card:hover .svc-card-corner{display:flex}
+.svc-card-corner button{padding:2px 8px;border-radius:4px;border:1px solid #d9d9d9;background:#fff;font-size:11px;color:var(--text-secondary);cursor:pointer;transition:.15s;line-height:1.6}
+.svc-card-corner button:hover{border-color:var(--primary);color:var(--primary)}
+
+/* 紧凑工程项目卡片（列表页用） */
+/* 固定一行 4 列，窄屏响应式降列 */
+.prj-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+@media (max-width:1200px){.prj-grid{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:900px){.prj-grid{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:640px){.prj-grid{grid-template-columns:1fr}}
+.prj-card{background:#fff;border:1px solid var(--border-mid);border-radius:8px;padding:16px;cursor:pointer;transition:.2s;position:relative;display:flex;flex-direction:column;gap:10px;min-height:172px}
+.prj-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.1);border-color:var(--primary);transform:translateY(-2px)}
+.prj-card-head{display:flex;align-items:flex-start;gap:12px}
+.prj-card-icon{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:#eef2ff;color:#4338ca}
+.prj-card-meta{flex:1;min-width:0}
+.prj-card-line{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.prj-card-name{font-size:14.5px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.4}
+.prj-card-vis{position:absolute;top:14px;right:14px;font-size:11px;padding:1px 8px;border-radius:10px;line-height:1.6}
+.prj-card-desc{font-size:12.5px;color:var(--text-secondary);line-height:1.6;display:-webkit-box;-webkit-line-clamp:2;line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;flex:1}
+.prj-card-tags{display:flex;gap:6px;flex-wrap:wrap}
+.prj-card-tags .chip{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:500;line-height:1.6}
+.prj-card-tags .chip-svc-count{background:#eef2ff;color:#1d4ed8;border:1px solid #c7d2fe}
+.prj-card-tags .chip-ver-count{background:#f0fdf4;color:#166534;border:1px solid #86efac}
+.prj-card-tags .chip-model-count{background:#faf5ff;color:#6b21a8;border:1px solid #d8b4fe}
+.prj-card-foot{display:flex;align-items:center;justify-content:space-between;font-size:11.5px;color:var(--text-secondary);padding-top:8px;border-top:1px dashed var(--border)}
+.prj-card-foot .pf-owner{display:inline-flex;align-items:center;gap:4px}
+.prj-card-foot .pf-time{color:var(--text-tertiary);font-size:11px}
+.prj-card-corner{position:absolute;bottom:14px;right:14px;display:none}
+.prj-card:hover .prj-card-corner{display:flex}
+.prj-card-corner button{padding:3px 10px;border-radius:4px;border:1px solid #d9d9d9;background:#fff;font-size:11px;color:var(--text-secondary);cursor:pointer;transition:.15s;line-height:1.6}
+.prj-card-corner button:hover{border-color:var(--primary);color:var(--primary);background:var(--primary-light)}
+
+/* 底部 hint 文字（区域结尾） */
+.zone-hint{text-align:center;font-size:11.5px;color:var(--text-tertiary);padding:14px 0 4px;margin-top:6px}
+
+/* ===== MISC ===== */
+.divider{height:1px;background:var(--border);margin:16px 0}
+.text-secondary{color:var(--text-secondary)}
+.text-primary-color{color:var(--primary)}
+.fw-500{font-weight:500}
+.fw-600{font-weight:600}
+.flex-center{display:flex;align-items:center}
+.gap-8{gap:8px}
+.mt-4{margin-top:4px}
+.mt-8{margin-top:8px}
+.mt-12{margin-top:12px}
+.mt-16{margin-top:16px}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#d0d0d0;border-radius:3px}
+
+/* ===== MODEL CARDS ===== */
+.model-card{background:#fff;border:1px solid var(--border-mid);border-radius:var(--radius);padding:16px;cursor:pointer;transition:.2s;position:relative;overflow:hidden}
+.model-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.1);border-color:var(--primary);transform:translateY(-2px)}
+.model-card-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px}
+.model-card-meta{flex:1;min-width:0}
+.model-card-org{font-size:11px;color:var(--text-secondary);margin-bottom:2px}
+.model-card-name{font-size:14px;font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.model-card-desc{font-size:12px;color:var(--text-secondary);line-height:1.6;margin-bottom:10px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:38px}
+.model-card-tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;min-height:22px}
+.model-card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border);font-size:11px;color:var(--text-secondary)}
+.model-card-corner-actions{position:absolute;bottom:10px;right:10px;display:none;gap:4px}
+.model-card:hover .model-card-corner-actions{display:flex}
+.tag-ver{background:#e6f4ff;color:#0958d9;border:1px solid #91caff;font-weight:600;font-family:monospace}
+.tag-fw-pytorch{background:#fff2e8;color:#d4380d;border:1px solid #ffbb96}
+.tag-fw-onnx{background:#e6f4ff;color:#0958d9;border:1px solid #91caff}
+.tag-fw-tensorflow{background:#fff7e6;color:#d46b08;border:1px solid #ffd591}
+.tag-drawing{background:#e6fffb;color:#13c2c2;border:1px solid #87e8de}
+.tag-doc{background:#f0f5ff;color:#2f54eb;border:1px solid #adc6ff}
+.tag-deploy-aliyun{background:#e6f4ff;color:#1677ff;border:1px solid #91caff}
+.tag-deploy-private{background:#fff7e6;color:#d46b08;border:1px solid #ffd591}
+.line-badge{display:inline-block;font-size:10px;font-weight:500;padding:1px 6px;border-radius:3px;background:rgba(80,139,238,.1);color:var(--primary);border:1px solid rgba(80,139,238,.25);white-space:nowrap;letter-spacing:.3px}
+.svc-id{font-family:monospace;font-size:11px;color:#1d4ed8;background:#eff6ff;padding:1px 6px;border-radius:3px;border:1px solid #bfdbfe;font-weight:500}
+
+/* ===== VERSION TABLE ===== */
+.ver-table{width:100%;border-collapse:collapse;font-size:13px;background:#fff;border-radius:var(--radius);overflow:hidden;border:1px solid var(--border-mid)}
+.ver-table th{background:#fafafa;padding:10px 16px;text-align:left;border-bottom:1px solid var(--border-mid);font-weight:500;color:var(--text-secondary);white-space:nowrap;font-size:12px}
+.ver-table td{padding:13px 16px;border-bottom:1px solid var(--border);vertical-align:middle}
+.ver-table tr:last-child td{border-bottom:none}
+.ver-table tbody tr:hover td{background:#fafafa}
+.ver-num{font-weight:600;color:var(--text-primary);font-family:monospace;font-size:13px}
+.ver-latest-badge{display:inline-flex;align-items:center;padding:1px 7px;background:#f6ffed;color:#389e0d;border:1px solid #b7eb8f;border-radius:10px;font-size:11px;margin-left:6px;font-weight:500}
+.ver-desc{color:var(--text-secondary);font-size:12px;max-width:220px}
+.ver-metrics{font-family:monospace;font-size:12px;color:var(--purple);background:#f9f0ff;padding:2px 7px;border-radius:3px;white-space:nowrap}
+.storage-hint{font-size:11px;color:var(--text-tertiary);font-family:monospace;margin-top:2px;display:block}
+.backend-badge{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:3px;font-size:11px;background:#f0f5ff;color:#2f54eb;border:1px solid #adc6ff;font-weight:500}
+
+/* ===== MODEL DETAIL ===== */
+.model-detail-header{background:#fff;border-bottom:1px solid var(--border);padding:20px 32px 0;flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ======= HEADER ======= -->
+<header class="header">
+  <div class="header-logo">
+    <div class="logo-mark">CV</div>
+    <span>行业AI平台</span>
+  </div>
+  <div class="header-right">
+    <div class="header-icon-btn" title="帮助文档">❓</div>
+    <div class="header-icon-btn" title="消息通知">🔔</div>
+    <div class="header-user">
+      <div class="avatar-sm">张</div>
+      <span>张三</span>
+    </div>
+  </div>
+</header>
+
+<div class="main">
+<!-- ======= SIDEBAR ======= -->
+<nav class="sidebar">
+  <div class="sidebar-section">
+    <div class="sidebar-group">数据资产</div>
+    <div class="menu-item active" id="menu-cloud" onclick="showPage('cloud-disk')">
+      <span class="menu-icon">☁️</span>
+      <span>数据云盘</span>
+    </div>
+    <div class="menu-item" id="menu-shared" onclick="showPage('shared')">
+      <span class="menu-icon">🌐</span>
+      <span>共享数据</span>
+    </div>
+  </div>
+</nav>
+
+<!-- ======= CONTENT ======= -->
+<div class="content">
+
+  <!-- ========== PAGE: 数据云盘 - 工程项目列表 ========== -->
+  <div class="page active" id="page-cloud-disk">
+    <div class="page-header">
+      <div>
+        <div class="page-title">数据云盘</div>
+        <div class="page-subtitle">管理 AI 工程项目资产，一个项目包含多个服务，每个服务独立发版 · <span class="backend-badge">🗄 LakeFS</span></div>
+      </div>
+    </div>
+    <div class="page-body">
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <button class="btn btn-primary" onclick="showModal('modal-create-project')">
+          <span>＋</span> 新建项目
+        </button>
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input class="input" id="cd-search" style="width:240px" placeholder="搜索工程项目..." oninput="filterProjects()">
+        </div>
+        <select class="select" id="cd-line-filter" style="width:130px" onchange="filterProjects()">
+          <option value="">全部产线</option>
+          <option value="行服">行服</option>
+          <option value="公路算量">公路算量</option>
+          <option value="安全">安全</option>
+          <option value="计价产品线">计价产品线</option>
+          <option value="土建">土建</option>
+          <option value="安装算量">安装算量</option>
+          <option value="呼叫中心">呼叫中心</option>
+          <option value="斑马进度">斑马进度</option>
+          <option value="清标">清标</option>
+        </select>
+        <div class="toolbar-right">
+          <span style="font-size:12px;color:var(--text-secondary)">共 <span id="cd-count">0</span> 个项目</span>
+        </div>
+      </div>
+      <!-- Card Grid -->
+      <div class="prj-grid" id="cloud-grid"></div>
+    </div>
+  </div>
+
+  <!-- ========== PAGE: 工程项目详情（含服务列表） ========== -->
+  <div class="page" id="page-project-detail">
+    <div class="detail-header">
+      <div class="breadcrumb" style="margin-bottom:14px">
+        <a onclick="showPage('cloud-disk')">数据云盘</a>
+        <span class="bc-sep">/</span>
+        <span id="pd-breadcrumb">-</span>
+      </div>
+      <div class="detail-top">
+        <div class="detail-icon" id="pd-icon" style="background:#eef2ff;color:#4338ca">📦</div>
+        <div class="detail-meta">
+          <div class="detail-sub">
+            <span class="entity-badge entity-badge-prj">🗂 工程项目</span>
+            <span id="pd-org">-</span>
+          </div>
+          <div class="detail-name">
+            <span id="pd-name">-</span>
+            <span class="tag tag-private" id="pd-vis-badge">🔒 私有</span>
+          </div>
+          <div class="detail-desc" id="pd-desc">—</div>
+        </div>
+        <div class="detail-actions">
+          <button class="btn btn-primary" onclick="prepareCreateServiceForProject()">＋ 新建服务</button>
+          <button class="btn btn-default" onclick="showProjectSettings()">⚙️ 设置</button>
+        </div>
+      </div>
+      <div class="stats-inline">
+        <span class="si-item">🔑
+          <code id="pd-project-id" onclick="copyPdProjectId()" title="点击复制">-</code>
+          <span id="pd-copy-hint" style="font-size:11px;color:var(--success);margin-left:2px;display:none">已复制</span>
+        </span>
+        <span class="si-sep">·</span>
+        <span class="si-item">🧩 <strong id="pd-service-count">0</strong> 个服务</span>
+        <span class="si-sep">·</span>
+        <span class="si-item">👤 <strong id="pd-owner">-</strong></span>
+        <span class="si-sep">·</span>
+        <span class="si-item">🕐 最近更新 <span id="pd-updated">-</span></span>
+      </div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:18px 24px 28px">
+      <div class="section-bar">
+        <div class="section-bar-title">📋 项目下的服务</div>
+        <div class="section-bar-sub">每个服务对应一个独立的 LakeFS 仓库，可独立发版</div>
+      </div>
+      <div class="svc-grid-compact" id="pd-service-grid"></div>
+      <div class="zone-hint">点击任一服务卡片进入服务详情页（数据 / 模型 / 代码 / 版本管理）</div>
+    </div>
+  </div>
+
+  <!-- ========== PAGE: 服务详情（含数据/模型/代码/版本） ========== -->
+  <div class="page" id="page-cloud-detail">
+    <div class="detail-header">
+      <div class="breadcrumb" style="margin-bottom:14px">
+        <a onclick="showPage('cloud-disk')">数据云盘</a>
+        <span class="bc-sep">/</span>
+        <a id="detail-project-link" onclick="openProjectDetail(detailProjectId)">-</a>
+        <span class="bc-sep">/</span>
+        <span id="detail-breadcrumb">-</span>
+      </div>
+      <div class="detail-top">
+        <div class="detail-icon" id="detail-icon">🎯</div>
+        <div class="detail-meta">
+          <div class="detail-sub">
+            <span class="entity-badge entity-badge-svc">🧩 服务</span>
+            <span id="detail-org">-</span>
+          </div>
+          <div class="detail-name">
+            <span id="detail-name">-</span>
+            <span class="tag tag-private" id="detail-vis-badge">🔒 私有</span>
+          </div>
+          <div class="detail-tags" id="detail-tags" style="margin-top:6px"></div>
+        </div>
+        <div class="detail-actions">
+          <button class="btn btn-primary" onclick="prepareReleaseModal();showModal('modal-release')">🚀 发布版本</button>
+          <button class="btn btn-default" onclick="showDetailTab('settings')">设置</button>
+        </div>
+      </div>
+      <div class="stats-inline">
+        <span class="si-item">🔑
+          <code id="detail-project-id" onclick="copyProjectId()" title="点击复制">-</code>
+          <span id="detail-copy-hint" style="font-size:11px;color:var(--success);margin-left:2px;display:none">已复制</span>
+        </span>
+        <span class="si-sep">·</span>
+        <span class="si-item">📁 <strong id="detail-files">0</strong> 个文件</span>
+        <span class="si-sep">·</span>
+        <span class="si-item">💾 <strong id="detail-size">0 MB</strong></span>
+        <span class="si-sep">·</span>
+        <span class="si-item">🕐 更新于 <span id="detail-updated">-</span></span>
+      </div>
+      <div class="tabs" id="detail-tabs">
+        <div class="tab-item active" onclick="showDetailTab('versions')">📋 版本历史</div>
+        <div class="tab-item" onclick="showDetailTab('files')">📂 数据文件</div>
+        <div class="tab-item" onclick="showDetailTab('models')">🧠 模型文件</div>
+        <div class="tab-item" onclick="showDetailTab('code')">💻 代码文件</div>
+        <div id="tab-api-doc-entry" class="tab-item" style="display:none;cursor:default" onclick="event.stopPropagation()">
+          <a id="tab-api-doc-link" href="#" target="_blank" style="color:var(--primary);text-decoration:none;display:flex;align-items:center;gap:4px" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">📄 接口文档 <span style="font-size:11px">↗</span></a>
+        </div>
+      </div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:0">
+
+      <!-- Tab: 版本历史 -->
+      <div class="tab-panel active" id="tab-versions" style="padding:20px 24px">
+        <div id="versions-area"></div>
+      </div>
+
+      <!-- Tab: 数据文件 -->
+      <div class="tab-panel" id="tab-files" style="padding:20px 24px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div style="font-size:13px;color:var(--text-secondary)" id="files-commit-info">— 暂无上传记录</div>
+          <button class="btn btn-default btn-sm" onclick="prepareReleaseModal();showModal('modal-release')">🚀 发布版本</button>
+        </div>
+        <div id="file-tree-area"></div>
+      </div>
+
+      <!-- Tab: 模型文件 -->
+      <div class="tab-panel" id="tab-models" style="padding:20px 24px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div style="font-size:13px;color:var(--text-secondary)" id="model-files-info">— 暂无模型文件</div>
+          <button class="btn btn-default btn-sm" onclick="prepareReleaseModal();showModal('modal-release')">🚀 发布版本</button>
+        </div>
+        <div id="model-file-tree-area"></div>
+      </div>
+
+      <!-- Tab: 代码文件 -->
+      <div class="tab-panel" id="tab-code" style="padding:20px 24px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+          <div style="font-size:13px;color:var(--text-secondary)" id="code-files-info">— 暂无代码文件</div>
+          <button class="btn btn-default btn-sm" onclick="prepareReleaseModal();showModal('modal-release')">🚀 发布版本</button>
+        </div>
+        <div id="code-file-tree-area"></div>
+      </div>
+
+      <!-- Tab: Settings -->
+      <div class="tab-panel" id="tab-settings" style="padding:20px 24px">
+        <div class="settings-section">
+          <div class="settings-section-title">基本信息</div>
+          <div class="form-item">
+            <label class="form-label"><span class="req">*</span>项目名称</label>
+            <input class="input" id="settings-name" placeholder="请输入项目名称">
+          </div>
+          <div class="form-item">
+            <label class="form-label">项目描述</label>
+            <textarea class="textarea" id="settings-desc" placeholder="请输入项目描述"></textarea>
+          </div>
+          <button class="btn btn-primary" onclick="saveSettings()">保存修改</button>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">关联服务 ID</div>
+          <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">关联后端已部署的服务，一个项目可绑定多个服务 ID（如 A265、A232）</div>
+          <div id="svc-id-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px"></div>
+          <div style="display:flex;gap:8px">
+            <input class="input" id="svc-id-input" placeholder="输入服务 ID，如 A265" style="flex:1;max-width:260px" onkeydown="if(event.key==='Enter')addSvcId()">
+            <button class="btn btn-default" onclick="addSvcId()">+ 添加</button>
+          </div>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section-title">可见性</div>
+          <div class="visibility-options" id="vis-options">
+            <div class="vis-opt selected" id="vis-private" onclick="selectVis('private')">
+              <div class="vis-opt-title">🔒 私有</div>
+              <div class="vis-opt-desc">仅限当前租户成员访问，不对外公开</div>
+            </div>
+            <div class="vis-opt" id="vis-public" onclick="selectVis('public')">
+              <div class="vis-opt-title">🌐 公开</div>
+              <div class="vis-opt-desc">发布至共享数据，全平台用户可浏览</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== PAGE: 共享数据集 ========== -->
+  <div class="page" id="page-shared">
+    <div class="page-header">
+      <div>
+        <div class="page-title">共享数据</div>
+        <div class="page-subtitle">平台公开的 AI 项目资产（数据集 + 模型），可自由浏览引用</div>
+      </div>
+    </div>
+    <div class="shared-layout" style="flex:1;overflow:hidden">
+      <!-- Filter Panel -->
+      <div class="filter-panel">
+        <div class="filter-search">
+          <div class="search-wrap" style="display:flex">
+            <span class="search-icon">🔍</span>
+            <input class="input" id="shared-search" placeholder="搜索项目..." oninput="filterShared()" style="width:100%">
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <div class="filter-group-title" onclick="toggleFilter('filter-tasks')">
+            <span>Tasks</span><span class="filter-toggle" id="toggle-tasks">▾</span>
+          </div>
+          <div class="filter-options" id="filter-tasks">
+            <label class="filter-opt" onclick="toggleFilterChip('detection','物体检测','tasks')">
+              <input type="radio" name="filter-tasks" id="f-detection"> 物体检测 <span class="filter-count">12</span>
+            </label>
+            <label class="filter-opt" onclick="toggleFilterChip('classification','图片分类','tasks')">
+              <input type="radio" name="filter-tasks" id="f-classification"> 图片分类 <span class="filter-count">8</span>
+            </label>
+            <label class="filter-opt" onclick="toggleFilterChip('ocr','OCR识别','tasks')">
+              <input type="radio" name="filter-tasks" id="f-ocr"> OCR 识别 <span class="filter-count">6</span>
+            </label>
+            <label class="filter-opt" onclick="toggleFilterChip('llm','LLM标注','tasks')">
+              <input type="radio" name="filter-tasks" id="f-llm"> LLM 标注 <span class="filter-count">9</span>
+            </label>
+            <label class="filter-opt" onclick="toggleFilterChip('vlm','VLM问答','tasks')">
+              <input type="radio" name="filter-tasks" id="f-vlm"> VLM 视觉问答 <span class="filter-count">4</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <div class="filter-group-title" onclick="toggleFilter('filter-size')">
+            <span>Size</span><span class="filter-toggle" id="toggle-size">▾</span>
+          </div>
+          <div class="filter-options" id="filter-size">
+            <label class="filter-opt" onclick="toggleFilterChip('size-0','&lt; 1K','size')"><input type="radio" name="filter-size" id="f-size-0"> &lt; 1K <span class="filter-count">7</span></label>
+            <label class="filter-opt" onclick="toggleFilterChip('size-1','1K–10K','size')"><input type="radio" name="filter-size" id="f-size-1"> 1K – 10K <span class="filter-count">14</span></label>
+            <label class="filter-opt" onclick="toggleFilterChip('size-2','10K–100K','size')"><input type="radio" name="filter-size" id="f-size-2"> 10K – 100K <span class="filter-count">10</span></label>
+            <label class="filter-opt" onclick="toggleFilterChip('size-3','&gt; 100K','size')"><input type="radio" name="filter-size" id="f-size-3"> &gt; 100K <span class="filter-count">3</span></label>
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <div class="filter-group-title" onclick="toggleFilter('filter-line')">
+            <span>租户</span><span class="filter-toggle" id="toggle-line">▾</span>
+          </div>
+          <div class="filter-options" id="filter-line">
+            <label class="filter-opt" onclick="toggleFilterChip('line-安全','安全','line')"><input type="radio" name="filter-line" id="f-line-安全"> 安全 <span class="filter-count">3</span></label>
+            <label class="filter-opt" onclick="toggleFilterChip('line-行服','行服','line')"><input type="radio" name="filter-line" id="f-line-行服"> 行服 <span class="filter-count">2</span></label>
+            <label class="filter-opt" onclick="toggleFilterChip('line-呼叫中心','呼叫中心','line')"><input type="radio" name="filter-line" id="f-line-呼叫中心"> 呼叫中心 <span class="filter-count">2</span></label>
+            <label class="filter-opt" onclick="toggleFilterChip('line-公路算量','公路算量','line')"><input type="radio" name="filter-line" id="f-line-公路算量"> 公路算量 <span class="filter-count">1</span></label>
+            <label class="filter-opt" onclick="toggleFilterChip('line-安装算量','安装算量','line')"><input type="radio" name="filter-line" id="f-line-安装算量"> 安装算量 <span class="filter-count">1</span></label>
+            <label class="filter-opt" onclick="toggleFilterChip('line-计价产品线','计价产品线','line')"><input type="radio" name="filter-line" id="f-line-计价产品线"> 计价产品线 <span class="filter-count">1</span></label>
+            <label class="filter-opt" onclick="toggleFilterChip('line-斑马进度','斑马进度','line')"><input type="radio" name="filter-line" id="f-line-斑马进度"> 斑马进度 <span class="filter-count">1</span></label>
+            <label class="filter-opt" onclick="toggleFilterChip('line-清标','清标','line')"><input type="radio" name="filter-line" id="f-line-清标"> 清标 <span class="filter-count">1</span></label>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Shared Content -->
+      <div class="shared-content">
+        <!-- Active filters -->
+        <div class="active-filters" id="active-filters" style="display:none"></div>
+        <div class="shared-toolbar">
+          <div style="font-size:13px;color:var(--text-secondary)">共 <span id="shared-count">12</span> 个项目</div>
+          <div class="toolbar-right">
+            <select class="select" style="width:150px" onchange="sortShared(this.value)">
+              <option value="updated">最新更新</option>
+            </select>
+          </div>
+        </div>
+        <div class="shared-card-grid" id="shared-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== PAGE: 共享数据集详情 ========== -->
+  <div class="page" id="page-shared-detail">
+    <div class="shared-detail-header">
+      <div class="breadcrumb" style="margin-bottom:14px">
+        <a onclick="showPage('shared')">共享数据</a>
+        <span class="bc-sep">/</span>
+        <span id="sd-breadcrumb">-</span>
+      </div>
+      <div class="detail-top" style="padding-bottom:0">
+        <div class="detail-icon" id="sd-icon">🎯</div>
+        <div class="detail-meta">
+          <div class="detail-org" id="sd-org">-</div>
+          <div class="detail-name">
+            <span id="sd-name">-</span>
+          </div>
+          <div class="detail-tags" id="sd-tags" style="margin-bottom:6px"></div>
+          <div style="font-size:12px;color:var(--text-secondary);display:flex;gap:14px">
+            <span>🕐 更新于 <span id="sd-updated">-</span></span>
+          </div>
+        </div>
+      </div>
+      <div class="tabs" style="margin-top:16px" id="sd-tabs">
+        <div class="tab-item active" onclick="showSharedTab('card')">📄 Dataset Card</div>
+        <div class="tab-item" onclick="showSharedTab('files')">📂 数据文件</div>
+        <div class="tab-item" onclick="showSharedTab('models')">🧠 模型文件</div>
+        <div class="tab-item" onclick="showSharedTab('preview')">👁️ Preview</div>
+      </div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding:20px 32px">
+      <!-- Dataset Card Tab -->
+      <div class="tab-panel active" id="sd-tab-card">
+        <div class="dataset-card-content" id="sd-card-content"></div>
+      </div>
+      <!-- 数据文件 Tab -->
+      <div class="tab-panel" id="sd-tab-files">
+        <div class="file-tree-wrap" id="sd-file-tree"></div>
+      </div>
+      <!-- 模型文件 Tab -->
+      <div class="tab-panel" id="sd-tab-models">
+        <div id="sd-model-area"></div>
+      </div>
+      <!-- Preview Tab -->
+      <div class="tab-panel" id="sd-tab-preview">
+        <div id="sd-preview-area"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ========== MODALS ========== -->
+
+<!-- 新建工程项目 -->
+<div class="overlay" id="modal-create-project">
+  <div class="modal modal-md">
+    <div class="modal-header">
+      <span class="modal-title">新建工程项目</span>
+      <button class="modal-close" onclick="hideModal('modal-create-project')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="padding:9px 12px;background:#e6f4ff;border:1px solid #91caff;border-radius:4px;font-size:12px;color:#0958d9;margin-bottom:14px;line-height:1.6">
+        💡 <strong>工程项目</strong>是一个业务方向（如「招投标 AI 套件」），下面可包含多个 AI 服务（如资信审查、技术标评审）。每个服务有独立的数据集、模型和版本。
+      </div>
+      <div class="form-item">
+        <label class="form-label"><span class="req">*</span>项目名称</label>
+        <input class="input" id="cp-name" placeholder="如：招投标 AI 套件" maxlength="50">
+      </div>
+      <div class="form-item">
+        <label class="form-label"><span class="req">*</span>所属产线</label>
+        <div style="display:flex;gap:8px">
+          <select class="select" id="cp-line" style="flex:1" onchange="onCpLineChange(this)">
+            <option value="">请选择产线...</option>
+            <option value="行服">行服</option>
+            <option value="公路算量">公路算量</option>
+            <option value="安全">安全</option>
+            <option value="计价产品线">计价产品线</option>
+            <option value="土建">土建</option>
+            <option value="安装算量">安装算量</option>
+            <option value="呼叫中心">呼叫中心</option>
+            <option value="斑马进度">斑马进度</option>
+            <option value="清标">清标</option>
+            <option value="__new__">+ 新建产线...</option>
+          </select>
+          <input class="input" id="cp-line-new" placeholder="输入新产线名称" style="display:none;flex:1" maxlength="20">
+        </div>
+      </div>
+      <div class="form-item">
+        <label class="form-label"><span class="req">*</span>负责人</label>
+        <input class="input" id="cp-owner" placeholder="如：张三" maxlength="20">
+        <div class="form-hint">项目负责人，可在创建后在「设置」中变更</div>
+      </div>
+      <div class="form-item">
+        <label class="form-label">项目描述</label>
+        <textarea class="textarea" id="cp-desc" placeholder="简要描述该工程项目要解决的业务问题、覆盖场景等" rows="3"></textarea>
+      </div>
+      <div class="form-item">
+        <label class="form-label">初始可见性</label>
+        <div class="visibility-options">
+          <div class="vis-opt selected" id="cp-vis-private" onclick="selectCpVis('private')">
+            <div class="vis-opt-title">🔒 私有</div>
+            <div class="vis-opt-desc">仅当前产线成员可访问</div>
+          </div>
+          <div class="vis-opt" id="cp-vis-public" onclick="selectCpVis('public')">
+            <div class="vis-opt-title">🌐 公开</div>
+            <div class="vis-opt-desc">项目下的服务可发布至共享数据</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="hideModal('modal-create-project')">取消</button>
+      <button class="btn btn-primary" onclick="createProject()">创建项目</button>
+    </div>
+  </div>
+</div>
+
+<!-- 新建服务（在某个工程项目下） -->
+<div class="overlay" id="modal-create">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <span class="modal-title">新建服务 · <span id="create-belong-project" style="color:var(--primary)">-</span></span>
+      <button class="modal-close" onclick="hideModal('modal-create')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="padding:9px 12px;background:#f6ffed;border:1px solid #b7eb8f;border-radius:4px;font-size:12px;color:#389e0d;margin-bottom:14px;line-height:1.6">
+        🧩 一个服务 = 一个 AI 能力单元 = 一个独立的 LakeFS 仓库。创建后可独立发版、独立管理数据集 / 模型 / 代码。
+      </div>
+      <div class="form-item">
+        <label class="form-label"><span class="req">*</span>服务名称</label>
+        <input class="input" id="create-name" placeholder="如：资信标抽取，仅支持字母、数字、连字符" maxlength="50">
+        <div class="form-hint">创建后 LakeFS 仓库路径为：lakefs://<span id="create-name-preview" style="color:var(--primary)">your-service-name</span>/main</div>
+      </div>
+      <input type="hidden" id="create-line">
+      <input type="hidden" id="create-line-new">
+      <div class="form-item">
+        <label class="form-label"><span class="req">*</span>部署方式</label>
+        <div style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap">
+          <div id="deploy-opts" style="display:flex;gap:8px;flex-wrap:wrap;flex:1">
+            <div class="deploy-opt selected" data-deploy="standard" onclick="selectDeployOpt(this)"
+              style="display:flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid var(--primary);border-radius:6px;background:var(--primary-light);cursor:pointer;transition:.15s;white-space:nowrap">
+              <span style="font-size:14px">🖥</span>
+              <div>
+                <div style="font-size:13px;font-weight:500;color:var(--primary)">标准部署</div>
+                <div style="font-size:11px;color:var(--text-secondary)">平台内部服务</div>
+              </div>
+            </div>
+            <div class="deploy-opt" data-deploy="aliyun" onclick="selectDeployOpt(this)"
+              style="display:flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid #d9d9d9;border-radius:6px;background:#fff;cursor:pointer;transition:.15s;white-space:nowrap">
+              <span style="font-size:14px">☁️</span>
+              <div>
+                <div style="font-size:13px;font-weight:500;color:var(--text-primary)">阿里云部署</div>
+                <div style="font-size:11px;color:var(--text-secondary)">PAI / EAS 托管</div>
+              </div>
+            </div>
+            <div class="deploy-opt" data-deploy="private" onclick="selectDeployOpt(this)"
+              style="display:flex;align-items:center;gap:8px;padding:8px 14px;border:1px solid #d9d9d9;border-radius:6px;background:#fff;cursor:pointer;transition:.15s;white-space:nowrap">
+              <span style="font-size:14px">🔒</span>
+              <div>
+                <div style="font-size:13px;font-weight:500;color:var(--text-primary)">私有化部署</div>
+                <div style="font-size:11px;color:var(--text-secondary)">客户自有环境</div>
+              </div>
+            </div>
+            <div class="deploy-opt" data-deploy="__custom__" onclick="selectDeployOpt(this)"
+              style="display:flex;align-items:center;gap:8px;padding:8px 14px;border:1px dashed #d9d9d9;border-radius:6px;background:#fafafa;cursor:pointer;transition:.15s;white-space:nowrap">
+              <span style="font-size:14px">✏️</span>
+              <div>
+                <div style="font-size:13px;font-weight:500;color:var(--text-secondary)">自定义...</div>
+              </div>
+            </div>
+          </div>
+          <input class="input" id="create-deploy-custom" placeholder="输入自定义部署方式" style="display:none;flex:1;min-width:160px" maxlength="20">
+        </div>
+        <div class="form-hint">决定模型最终服务运行的基础设施环境，影响访问地址和资源计费</div>
+      </div>
+      <div class="form-item">
+        <label class="form-label"><span class="req">*</span>任务类型</label>
+        <div class="type-grid" id="create-type-grid">
+          <div class="type-opt selected" data-type="detection" onclick="selectType(this)">
+            <div class="type-opt-icon" style="background:#e6f4ff;font-size:16px">🎯</div>
+            <div>
+              <div class="type-opt-label">物体检测</div>
+              <div class="type-opt-desc">图片 + BBox 标注 · COCO / YOLO 格式</div>
+            </div>
+          </div>
+          <div class="type-opt" data-type="classification" onclick="selectType(this)">
+            <div class="type-opt-icon" style="background:#f9f0ff;font-size:16px">🏷️</div>
+            <div>
+              <div class="type-opt-label">图片分类</div>
+              <div class="type-opt-desc">图片 + 类别标签 · 按目录分类</div>
+            </div>
+          </div>
+          <div class="type-opt" data-type="ocr" onclick="selectType(this)">
+            <div class="type-opt-icon" style="background:#e6fffb;font-size:16px">📄</div>
+            <div>
+              <div class="type-opt-label">OCR 识别</div>
+              <div class="type-opt-desc">图片 + 文字区域标注 · 含文字内容</div>
+            </div>
+          </div>
+          <div class="type-opt" data-type="llm-supervised" onclick="selectType(this)">
+            <div class="type-opt-icon" style="background:#fff7e6;font-size:16px">💬</div>
+            <div>
+              <div class="type-opt-label">LLM 监督式</div>
+              <div class="type-opt-desc">Prompt / Response 对话对 · JSONL</div>
+            </div>
+          </div>
+          <div class="type-opt" data-type="llm-unsupervised" onclick="selectType(this)">
+            <div class="type-opt-icon" style="background:#fff7e6;font-size:16px">📝</div>
+            <div>
+              <div class="type-opt-label">LLM 无监督</div>
+              <div class="type-opt-desc">原始文本语料 · TXT / JSONL</div>
+            </div>
+          </div>
+          <div class="type-opt" data-type="vlm" onclick="selectType(this)">
+            <div class="type-opt-icon" style="background:#fff0f6;font-size:16px">👁️</div>
+            <div>
+              <div class="type-opt-label">VLM 视觉问答</div>
+              <div class="type-opt-desc">图文对 + 问答标注 · 多模态</div>
+            </div>
+          </div>
+          <div class="type-opt" data-type="common" onclick="selectType(this)" style="grid-column:1/-1">
+            <div class="type-opt-icon" style="background:#f5f5f5;font-size:16px">📦</div>
+            <div>
+              <div class="type-opt-label">通用</div>
+              <div class="type-opt-desc">不限格式，任意文件类型，无格式校验</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-item">
+        <label class="form-label">服务描述</label>
+        <textarea class="textarea" id="create-desc" placeholder="描述该算法服务的应用场景" rows="3"></textarea>
+      </div>
+      <div class="form-item">
+        <label class="form-label">关联业务服务 ID <span style="color:var(--text-tertiary);font-weight:400">（选填，可填多个）</span></label>
+        <div id="create-svc-tags" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px"></div>
+        <div style="display:flex;gap:8px">
+          <input class="input" id="create-svc-input" placeholder="输入业务服务 ID，如 A265，回车添加" style="flex:1"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();addCreateSvcId()}">
+          <button class="btn btn-default btn-sm" onclick="addCreateSvcId()">添加</button>
+        </div>
+        <div class="form-hint">关联到行业 AI 平台已有的业务服务 ID，便于追溯调用关系</div>
+      </div>
+      <div class="form-item" style="display:none">
+        <label class="form-label">初始可见性（继承自工程项目）</label>
+        <div class="visibility-options">
+          <div class="vis-opt selected" id="create-vis-private" onclick="selectCreateVis('private')">
+            <div class="vis-opt-title">🔒 私有</div>
+            <div class="vis-opt-desc">仅当前租户成员可访问</div>
+          </div>
+          <div class="vis-opt" id="create-vis-public" onclick="selectCreateVis('public')">
+            <div class="vis-opt-title">🌐 公开</div>
+            <div class="vis-opt-desc">发布至共享数据，全平台可见</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="hideModal('modal-create')">取消</button>
+      <button class="btn btn-primary" onclick="createDataset()">创建服务</button>
+    </div>
+  </div>
+</div>
+
+<!-- 上传数据 -->
+<div class="overlay" id="modal-upload">
+  <div class="modal modal-md">
+    <div class="modal-header">
+      <span class="modal-title">上传数据 · <span id="upload-type-label" style="color:var(--primary)">物体检测</span></span>
+      <button class="modal-close" onclick="hideModal('modal-upload')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="upload-step-1">
+        <div class="upload-zone" id="upload-zone" onclick="triggerUpload()">
+          <div class="upload-zone-icon">📁</div>
+          <div class="upload-zone-title">点击选择文件，或拖拽至此处</div>
+          <div class="upload-zone-hint" id="upload-zone-hint">支持 .zip 格式</div>
+        </div>
+        <div class="upload-format-box" id="upload-format-box">
+          <strong>格式要求：</strong><br>
+          压缩包结构：<code>images/</code> 存放图片，<code>annotations.json</code> 为 COCO 格式标注<br>
+          或 YOLO 格式：<code>images/</code> + <code>labels/</code> 目录，每张图对应同名 <code>.txt</code>
+        </div>
+      </div>
+      <div id="upload-step-2" style="display:none">
+        <div style="text-align:center;padding:16px 0 8px">
+          <div style="font-size:28px;margin-bottom:8px">⏳</div>
+          <div style="font-size:14px;font-weight:500;margin-bottom:4px">正在上传并处理...</div>
+          <div style="font-size:12px;color:var(--text-secondary)" id="upload-status-text">准备中</div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-bar"><div class="progress-fill" id="upload-progress" style="width:0%"></div></div>
+          <div class="progress-info">
+            <span id="upload-progress-info">解析文件结构...</span>
+            <span id="upload-progress-pct">0%</span>
+          </div>
+        </div>
+      </div>
+      <div id="upload-step-3" style="display:none">
+        <div style="text-align:center;padding:12px 0 8px">
+          <div style="font-size:32px;margin-bottom:8px;color:var(--success)">✓</div>
+          <div style="font-size:14px;font-weight:500;margin-bottom:12px">上传完成！</div>
+        </div>
+        <div class="upload-result">
+          <div class="upload-result-item">✅ 成功导入：<strong id="res-success">1,250</strong> 条</div>
+          <div class="upload-result-item">♻️ 重复去除：<strong id="res-dup">32</strong> 条</div>
+          <div class="upload-result-item" id="res-label-row">📋 已标注：<strong id="res-labeled">986</strong> / 未标注：<strong id="res-unlabeled">264</strong></div>
+          <div class="upload-result-item" id="res-error-row">❌ 格式错误：<strong id="res-error">5</strong> 条</div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer" id="upload-footer">
+      <button class="btn btn-default" id="upload-cancel-btn" onclick="hideModal('modal-upload')">取消</button>
+      <button class="btn btn-primary" id="upload-confirm-btn" onclick="startUpload()">开始上传</button>
+    </div>
+  </div>
+</div>
+
+<!-- 发布确认 -->
+<div class="overlay" id="modal-publish">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <span class="modal-title">发布至共享数据</span>
+      <button class="modal-close" onclick="hideModal('modal-publish')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="publish-warn">
+        ⚠️ 发布后，此项目将对 <strong>全平台所有用户</strong> 公开可见。<br>
+        请确认项目内容符合平台规范，不含敏感或违规信息。<br>
+        发布后可在 Settings 中重新设为私有。
+      </div>
+      <div class="publish-confirm-input">
+        <div class="publish-confirm-label">请输入项目名称 <span id="publish-ds-name">-</span> 确认发布：</div>
+        <input class="input" id="publish-confirm-input" placeholder="请输入项目名称..." style="margin-top:8px">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-default" onclick="hideModal('modal-publish')">取消</button>
+      <button class="btn btn-primary" id="publish-confirm-btn" onclick="confirmPublish()" disabled>确认发布</button>
+    </div>
+  </div>
+</div>
+
+  <!-- ========== MODAL: 发布版本（数据 + 模型） ========== -->
+  <div class="overlay" id="modal-release" onclick="hideModal('modal-release')">
+    <div class="modal" onclick="event.stopPropagation()" style="width:720px;max-height:90vh;display:flex;flex-direction:column">
+      <div class="modal-header">
+        <span class="modal-title">发布版本 · <span id="rel-proj-name" style="color:var(--primary)">-</span></span>
+        <button class="modal-close" onclick="hideModal('modal-release')">✕</button>
+      </div>
+
+      <!-- 上传方式 Tab -->
+      <div style="display:flex;border-bottom:1px solid var(--border);background:#fafafa;flex-shrink:0">
+        <button id="rel-tab-web" onclick="switchRelTab('web')"
+          style="flex:1;height:40px;border:none;background:none;font-size:13px;cursor:pointer;border-bottom:2px solid var(--primary);color:var(--primary);font-weight:500">
+          📦 网页上传
+        </button>
+        <button id="rel-tab-cli" onclick="switchRelTab('cli')"
+          style="flex:1;height:40px;border:none;background:none;font-size:13px;cursor:pointer;border-bottom:2px solid transparent;color:var(--text-secondary)">
+          💻 命令行推送
+        </button>
+      </div>
+
+      <div class="modal-body" style="overflow-y:auto">
+
+        <!-- ===== TAB: 网页上传 ===== -->
+        <div id="rel-panel-web">
+          <!-- 目录规范说明 -->
+          <div style="margin-bottom:16px;border:1px solid var(--border-mid);border-radius:6px;overflow:hidden">
+            <div style="background:#fafafa;padding:9px 14px;font-size:12px;font-weight:500;color:var(--text-secondary);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+              <span>📁 目录规范（每次发版上传一个 .zip 包，内部结构如下）</span>
+              <span id="rel-is-first" style="display:none;color:var(--warning);font-size:11px">⚠️ 首版必须包含 README.md</span>
+            </div>
+            <div style="padding:12px 14px;font-family:monospace;font-size:12px;line-height:2;background:#fff;color:var(--text-primary)">
+              <div><span style="color:var(--primary);font-weight:600" id="rel-dir-name">project-name</span><span style="color:var(--text-tertiary)">/</span></div>
+              <div style="padding-left:20px"><span style="color:var(--text-tertiary)">├── </span><span style="color:#389e0d">data</span><span style="color:var(--text-tertiary)">/</span><span style="color:var(--text-tertiary);font-size:11px;margin-left:12px">← 数据文件（图片/标注/语料等）</span></div>
+              <div style="padding-left:20px"><span style="color:var(--text-tertiary)">│&nbsp;&nbsp;&nbsp;├── </span><span id="rel-data-hint" style="color:var(--text-secondary)">images/ &nbsp;annotations.json</span></div>
+              <div style="padding-left:20px"><span style="color:var(--text-tertiary)">├── </span><span style="color:#531dab">models</span><span style="color:var(--text-tertiary)">/</span><span style="color:var(--text-tertiary);font-size:11px;margin-left:12px">← 模型文件（可选）</span></div>
+              <div style="padding-left:20px"><span style="color:var(--text-tertiary)">│&nbsp;&nbsp;&nbsp;├── </span><span style="color:var(--text-secondary)">model.pt &nbsp;model.onnx</span></div>
+              <div style="padding-left:20px"><span style="color:var(--text-tertiary)">├── </span><span style="color:#0958d9">code</span><span style="color:var(--text-tertiary)">/</span><span style="color:var(--text-tertiary);font-size:11px;margin-left:12px">← 训练 / 推理代码（可选）</span></div>
+              <div style="padding-left:20px"><span style="color:var(--text-tertiary)">│&nbsp;&nbsp;&nbsp;├── </span><span style="color:var(--text-secondary)">train.py &nbsp;inference.py &nbsp;requirements.txt</span></div>
+
+              <div style="padding-left:20px" id="rel-readme-row"><span style="color:var(--text-tertiary)">└── </span><span style="color:var(--error);font-weight:600">README.md</span><span style="color:var(--error);font-size:11px;margin-left:12px">← 首版必须，描述项目背景与使用说明</span></div>
+              <div style="padding-left:20px" id="rel-readme-row-opt" style="display:none"><span style="color:var(--text-tertiary)">└── </span><span style="color:var(--text-secondary)">README.md</span><span style="color:var(--text-tertiary);font-size:11px;margin-left:12px">← 有更新时一并提交</span></div>
+            </div>
+          </div>
+
+          <div class="form-item" style="margin:0">
+            <label class="form-label">版本号 <span style="color:var(--error)">*</span></label>
+            <input class="input" id="rel-ver" placeholder="如：v1.2.0">
+          </div>
+          <div class="form-item">
+            <label class="form-label">发布说明 <span style="color:var(--error)">*</span></label>
+            <textarea class="textarea" id="rel-desc" placeholder="描述本次发版的数据更新、模型改动、指标变化等" style="min-height:60px"></textarea>
+          </div>
+          <div class="form-item">
+            <label class="form-label">发版时间 <span style="color:var(--text-tertiary);font-weight:400">（选填，不填则记录为当前时间）</span></label>
+            <input class="input" id="rel-release-time" type="text" placeholder="如：20260521" maxlength="8" style="width:160px">
+          </div>
+          <div class="form-item">
+            <label class="form-label">接口文档地址 <span style="color:var(--text-tertiary);font-weight:400">（选填）</span></label>
+            <input class="input" id="rel-api-doc" type="url" placeholder="如：https://docs.example.com/api/vehicle-detection">
+          </div>
+          <div class="form-item" style="margin-bottom:8px">
+            <label class="form-label">📦 上传版本压缩包 <span style="color:var(--text-tertiary);font-weight:400">（按上方目录规范打包为 .zip）</span></label>
+            <div class="upload-zone" onclick="showToast('info','文件选择器（演示）')" style="padding:16px;gap:6px">
+              <div class="upload-zone-icon" style="font-size:28px">📦</div>
+              <div class="upload-zone-title" style="font-size:13px">点击选择 .zip 文件，或拖拽至此处</div>
+              <div class="upload-zone-hint">包内包含 data/ + models/（可选）+ code/（可选）+ README.md（首版必须），将自动推送至 LakeFS</div>
+            </div>
+          </div>
+          <div style="padding:9px 12px;background:#f6ffed;border:1px solid #b7eb8f;border-radius:4px;font-size:12px;color:#389e0d">
+            🗄 每次发版生成一条不可变记录，自动写入 DVC 或 LakeFS，支持随时回溯任意历史版本
+          </div>
+        </div>
+
+        <!-- ===== TAB: 命令行推送 ===== -->
+        <div id="rel-panel-cli" style="display:none">
+
+          <!-- 说明 -->
+          <div style="padding:10px 14px;background:#e6f4ff;border:1px solid #91caff;border-radius:6px;font-size:12px;color:#0958d9;margin-bottom:14px;line-height:1.7">
+            💡 在训练服务器上直接推送 <strong>数据目录</strong> + <strong>模型目录</strong>，无需打包。推荐用环境变量固化凭据和仓库路径，之后每次上传只需两行命令。
+          </div>
+
+          <!-- Step 1: 环境变量（一次性写入 ~/.bashrc） -->
+          <div style="margin-bottom:14px">
+            <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;display:flex;align-items:center;gap:6px">
+              <span style="width:18px;height:18px;background:var(--primary);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:700;flex-shrink:0">1</span>
+              写入环境变量（首次，加到 ~/.bashrc 后 source 生效）
+            </div>
+            <div style="background:#1e1e2e;border-radius:6px;padding:12px 14px;font-family:monospace;font-size:12px;line-height:1.9;color:#cdd6f4;position:relative">
+              <button onclick="showToast('success','命令已复制')" style="position:absolute;top:8px;right:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:4px;color:#a6adc8;font-size:11px;padding:2px 8px;cursor:pointer">复制</button>
+              <div><span style="color:#6c7086"># LakeFS 服务地址（平台统一，无需修改）</span></div>
+              <div><span style="color:#cba6f7">export</span> LAKECTL_SERVER_ENDPOINT_URL=<span style="color:#a6e3a1">https://lakefs.cvforce.example.com</span></div>
+              <div style="margin-top:4px"><span style="color:#6c7086"># 个人访问密钥（平台「个人设置 → Access Keys」获取）</span></div>
+              <div><span style="color:#cba6f7">export</span> LAKECTL_CREDENTIALS_ACCESS_KEY_ID=<span style="color:#f9e2af">&lt;your-access-key&gt;</span></div>
+              <div><span style="color:#cba6f7">export</span> LAKECTL_CREDENTIALS_SECRET_ACCESS_KEY=<span style="color:#f9e2af">&lt;your-secret-key&gt;</span></div>
+              <div style="margin-top:4px"><span style="color:#6c7086"># 安装 lakectl（首次）</span></div>
+              <div><span style="color:#a6e3a1">curl</span> -L https://lakefs.cvforce.example.com/dl/lakectl -o /usr/local/bin/lakectl &amp;&amp; chmod +x /usr/local/bin/lakectl</div>
+            </div>
+          </div>
+
+          <!-- Step 2: 设置本项目的 REPO 变量 -->
+          <div style="margin-bottom:14px">
+            <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;display:flex;align-items:center;gap:6px">
+              <span style="width:18px;height:18px;background:var(--primary);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:700;flex-shrink:0">2</span>
+              设置当前项目仓库路径（每个项目设置一次，复制下方命令即可）
+            </div>
+            <div style="background:#1e1e2e;border-radius:6px;padding:12px 14px;font-family:monospace;font-size:12px;line-height:1.9;color:#cdd6f4;position:relative">
+              <button onclick="showToast('success','命令已复制')" style="position:absolute;top:8px;right:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:4px;color:#a6adc8;font-size:11px;padding:2px 8px;cursor:pointer">复制</button>
+              <div><span style="color:#6c7086"># Project ID 已自动填入，直接执行即可</span></div>
+              <div><span style="color:#cba6f7">export</span> REPO=<span style="color:#a6e3a1">lakefs://</span><span id="cli-proj-id" style="color:#cba6f7">svc-xxx</span><span style="color:#a6e3a1">/main</span></div>
+            </div>
+          </div>
+
+          <!-- Step 3: 上传目录 + commit -->
+          <div style="margin-bottom:4px">
+            <div style="font-size:12px;font-weight:600;color:var(--text-secondary);margin-bottom:6px;display:flex;align-items:center;gap:6px">
+              <span style="width:18px;height:18px;background:var(--primary);border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:700;flex-shrink:0">3</span>
+              上传目录 &amp; 提交版本（每次发版执行）
+            </div>
+            <div style="background:#1e1e2e;border-radius:6px;padding:12px 14px;font-family:monospace;font-size:12px;line-height:1.9;color:#cdd6f4;position:relative">
+              <button onclick="showToast('success','命令已复制')" style="position:absolute;top:8px;right:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:4px;color:#a6adc8;font-size:11px;padding:2px 8px;cursor:pointer">复制</button>
+              <div><span style="color:#6c7086"># 上传数据目录（-r 递归，只传有变化的文件）</span></div>
+              <div><span style="color:#a6e3a1">lakectl fs upload</span> -r $REPO/data/ ./data/</div>
+              <div style="margin-top:4px"><span style="color:#6c7086"># 上传模型目录（如有）</span></div>
+              <div><span style="color:#a6e3a1">lakectl fs upload</span> -r $REPO/models/ ./models/</div>
+              <div style="margin-top:4px"><span style="color:#6c7086"># 上传代码目录（训练 / 推理脚本）</span></div>
+              <div><span style="color:#a6e3a1">lakectl fs upload</span> -r $REPO/code/ ./code/</div>
+              <div style="margin-top:8px"><span style="color:#6c7086"># 提交版本快照，平台自动生成版本历史记录</span></div>
+              <div><span style="color:#a6e3a1">lakectl commit</span> $REPO -m <span style="color:#a6e3a1">"v1.2.0: 新增夜间场景样本500条"</span></div>
+            </div>
+          </div>
+
+          <div style="padding:9px 12px;background:#f6ffed;border:1px solid #b7eb8f;border-radius:4px;font-size:12px;color:#389e0d;margin-top:14px;line-height:1.6">
+            🗄 <code>lakectl fs upload</code> 只传差异对象，未修改的文件不会重复占用存储。<code>lakectl commit</code> 完成后平台 Webhook 自动入库，记录出现在「版本历史」列表。
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-default" onclick="hideModal('modal-release')">取消</button>
+        <button class="btn btn-primary" id="rel-submit-btn" onclick="doRelease()">🚀 发布</button>
+      </div>
+    </div>
+  </div>
+
+<!-- Toast -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<!-- ========== SCRIPTS ========== -->
+<script>
+// ===== MOCK DATA =====
+const TYPE_META = {
+  'detection':       {label:'视觉检测',  icon:'🎯', tagCls:'tag-detection',      color:'#e6f4ff', fmt:'.zip (images/ + COCO JSON 或 YOLO labels/)'},
+  'classification':  {label:'图片分类',  icon:'🏷️', tagCls:'tag-classification', color:'#f9f0ff', fmt:'.zip (按类别分子目录) 或 CSV'},
+  'ocr':             {label:'OCR识别',  icon:'📄', tagCls:'tag-ocr',             color:'#e6fffb', fmt:'.zip (images/ + 标注 JSON)'},
+  'llm-supervised':  {label:'LLM应用',  icon:'💬', tagCls:'tag-llm',             color:'#fff7e6', fmt:'.jsonl 或 .csv (含 prompt + response 字段)'},
+  'llm-unsupervised':{label:'LLM无监督', icon:'📝', tagCls:'tag-llm',            color:'#fff7e6', fmt:'.txt 或 .jsonl (纯文本语料)'},
+  'vlm':             {label:'VLM问答',  icon:'👁️', tagCls:'tag-vlm',            color:'#fff0f6', fmt:'.zip (images/ + qa.jsonl 图文问答对)'},
+  'drawing':         {label:'图纸识别',  icon:'📐', tagCls:'tag-drawing',         color:'#e6fffb', fmt:'DWG/PDF/图片 + 标注JSON'},
+  'doc':             {label:'文档理解',  icon:'📋', tagCls:'tag-doc',             color:'#f0f5ff', fmt:'PDF/Word/Excel/文本'},
+  'common':          {label:'通用',     icon:'📦', tagCls:'tag-common',          color:'#f5f5f5', fmt:'任意格式，不做格式校验'},
+};
+
+const SIZE_LABELS = {0:'< 1K', 1:'1K–10K', 2:'10K–100K', 3:'> 100K'};
+
+function sizeTag(n){ if(n<1000)return 0; if(n<10000)return 1; if(n<100000)return 2; return 3; }
+
+// ===== 工程项目（业务工程层）数据 =====
+// 一个工程项目对应多个服务，每个服务对应一个独立的 LakeFS 仓库
+let cloudProjects = [
+  {id:'prj-001', name:'招投标 AI 套件',       line:'行服',       owner:'张三', desc:'面向招投标全流程的 AI 辅助能力套件，覆盖资信审查、技术标评审、专项方案评审等场景', vis:'private', updated:'2024-03-15', serviceIds:['svc-001','svc-002','svc-003','svc-004']},
+  {id:'prj-002', name:'公路算量图纸识别',     line:'公路算量',   owner:'李四', desc:'面向公路工程算量场景的图纸识别能力集，覆盖桥梁、桩柱、表格、梁、断面等多类图纸自动解析', vis:'private', updated:'2024-03-11', serviceIds:['svc-005','svc-006','svc-007','svc-008','svc-009','svc-010','svc-011','svc-012','svc-013','svc-014','svc-015','svc-016','svc-017','svc-018','svc-019','svc-020']},
+  {id:'prj-003', name:'工地视觉巡检',         line:'安全',       owner:'王五', desc:'基于摄像头视频流的工地安全行为识别套件，覆盖安全绳、临边防护、机械作业、吊装等场景', vis:'private', updated:'2024-03-15', serviceIds:['svc-021','svc-022','svc-023','svc-024','svc-025','svc-026','svc-027','svc-028','svc-029','svc-030','svc-031','svc-032','svc-033','svc-034','svc-035','svc-036','svc-037','svc-038','svc-039','svc-040']},
+  {id:'prj-004', name:'AI 智能组价',          line:'计价产品线', owner:'李四', desc:'基于大模型的造价组价辅助能力，自动套定额、算工程量、做换算，提升组价效率', vis:'private', updated:'2024-03-15', serviceIds:['svc-041','svc-042','svc-043']},
+  {id:'prj-005', name:'土建图纸识别',         line:'土建',       owner:'张三', desc:'土建工程图纸节点图自动识别与参数抽取', vis:'private', updated:'2024-03-12', serviceIds:['svc-044']},
+  {id:'prj-006', name:'安装算量图纸识别',     line:'安装算量',   owner:'李四', desc:'面向安装算量场景的图纸智能识别套件，覆盖管线、材料表、焊口、管件等业务实体抽取', vis:'private', updated:'2024-03-11', serviceIds:['svc-045','svc-046','svc-047','svc-048','svc-049','svc-050','svc-051','svc-052']},
+  {id:'prj-007', name:'智能客服对话',         line:'呼叫中心',   owner:'王五', desc:'基于大模型的呼叫中心对话理解套件，包含改写、追问、反问、路由、检索五大能力', vis:'private', updated:'2024-03-15', serviceIds:['svc-053','svc-054','svc-055','svc-056','svc-057']},
+  {id:'prj-008', name:'施工进度信息抽取',     line:'斑马进度',   owner:'张三', desc:'从施工组织文档中自动抽取关键字段的结构化信息', vis:'private', updated:'2024-03-10', serviceIds:['svc-058']},
+  {id:'prj-009', name:'智能清标',             line:'清标',       owner:'李四', desc:'面向工程清标场景的综合 AI 套件，覆盖图纸解析、技术标目录、正文撰写、知识库检索', vis:'private', updated:'2024-03-09', serviceIds:['svc-059','svc-060','svc-061','svc-062']},
+];
+
+// 反向工具：根据服务 ID 找其所属项目
+function findProjectByServiceId(svcId) {
+  return cloudProjects.find(p => p.serviceIds.includes(svcId));
+}
+
+// ===== 服务（AI 能力单元）数据 =====
+// 每个服务 = 1 个 LakeFS 仓库 = 1 套独立的数据 + 模型 + 代码 + 版本
+let cloudDatasets = [
+  // 行服
+  {id:'svc-001', name:'资信标',                   line:'行服',      serviceId:'A265',           deploy:'standard', type:'doc',       desc:'提取资信标中的格式化信息，比如身份证、变更通知书等中的k-v对', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-15', latestVer:'v1.2.0', verCount:3, hasModel:true, apiDoc:'https://docs.cvforce.example.com/api/A265'},
+  {id:'svc-002', name:'技术标',                   line:'行服',      serviceId:'A232',           deploy:'standard', type:'doc',       desc:'评审技术标施工方案文件是否满足招标文件的评审点要求', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-14', latestVer:'v1.1.0', verCount:2, hasModel:true, apiDoc:'https://docs.cvforce.example.com/api/A232'},
+  {id:'svc-003', name:'灌注桩优劣评审',           line:'行服',      serviceId:'A230',           deploy:'standard', type:'doc',       desc:'基于招标文件抽取评审要点，对投标文件进行符合性评审与措施检查，并结合相关依据对施工方案进行合理性判定', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-13', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-004', name:'贵州水利招标文件评审点抽取', line:'行服',   serviceId:'A174',           deploy:'standard', type:'doc',       desc:'针对Excel、PDF等格式的水利招标文件，进行内容解析与评审要点抽取', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-12', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  // 公路算量
+  {id:'svc-005', name:'桩柱平立剖图纸识别',       line:'公路算量',  serviceId:'私有部署',       deploy:'private',  type:'drawing',   desc:'识别桩基、墩柱平立剖图纸及其说明中的部分参数', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-11', latestVer:'v2.1.0', verCount:4, hasModel:true},
+  {id:'svc-006', name:'图纸信息识别',             line:'公路算量',  serviceId:'私有部署',       deploy:'private',  type:'drawing',   desc:'识别公路算量图纸的图名、图号、页码等信息', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-10', latestVer:'v1.3.0', verCount:3, hasModel:true},
+  {id:'svc-007', name:'桥梁图纸信息识别',         line:'公路算量',  serviceId:'A174',           deploy:'standard', type:'drawing',   desc:'图纸信息识别服务的补充，识别跨径、章节名等信息', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-09', latestVer:'v1.1.0', verCount:2, hasModel:true},
+  {id:'svc-008', name:'钢筋排布图信息提取',       line:'公路算量',  serviceId:'私有部署',       deploy:'private',  type:'drawing',   desc:'提取钢筋排布图中的OCR信息', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-08', latestVer:'v1.2.0', verCount:2, hasModel:true},
+  {id:'svc-009', name:'矢量图OCR识别-纵断面',     line:'公路算量',  serviceId:'私有部署',       deploy:'private',  type:'drawing',   desc:'提取矢量图纵断面中的OCR信息', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-07', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-010', name:'矢量图OCR识别-横断面',     line:'公路算量',  serviceId:'A174',           deploy:'standard', type:'drawing',   desc:'提取矢量图横断面中的OCR信息', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-06', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-011', name:'单元格解析',               line:'公路算量',  serviceId:'私有部署',       deploy:'private',  type:'drawing',   desc:'提取各类表格的行列信息及OCR信息', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-05', latestVer:'v1.1.0', verCount:2, hasModel:true},
+  {id:'svc-012', name:'表名分类',                 line:'公路算量',  serviceId:'私有部署',       deploy:'private',  type:'drawing',   desc:'对输入的表名进行路基路面分类', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-04', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-013', name:'打标签',                   line:'公路算量',  serviceId:'A175',           deploy:'standard', type:'drawing',   desc:'表格行列信息输出业务标签', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-03', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-014', name:'分部分项匹配',             line:'公路算量',  serviceId:'A160',           deploy:'standard', type:'drawing',   desc:'表格所有信息分部分项匹配', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-02', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-015', name:'桥梁表格表名提取',         line:'公路算量',  serviceId:'A259',           deploy:'standard', type:'drawing',   desc:'提取桥梁表格区域与表格名称及关联匹配关系', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-01', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-016', name:'桥梁有效表格判断',         line:'公路算量',  serviceId:'A136',           deploy:'standard', type:'drawing',   desc:'桥梁表格名称有效/无效判断', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-02-28', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-017', name:'T梁平立剖参数识别',        line:'公路算量',  serviceId:'A161',           deploy:'standard', type:'drawing',   desc:'提取T梁平立剖三面的参数信息', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-02-27', latestVer:'v1.1.0', verCount:2, hasModel:true},
+  {id:'svc-018', name:'系梁平立剖',               line:'公路算量',  serviceId:'A153',           deploy:'standard', type:'drawing',   desc:'提取系梁平立剖三面的参数信息', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-02-26', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-019', name:'盖梁平立剖',               line:'公路算量',  serviceId:'A179',           deploy:'standard', type:'drawing',   desc:'提取盖梁平立剖三面的参数信息', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-02-25', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-020', name:'桥型布置图',               line:'公路算量',  serviceId:'A180',           deploy:'standard', type:'drawing',   desc:'对桥梁的平立剖、说明信息提取相关部位、抽取相关信息', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-02-24', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  // 安全
+  {id:'svc-021', name:'安全绳系挂',               line:'安全',      serviceId:'A179',           deploy:'standard', type:'detection', desc:'识别工人安全绳是否系挂', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-15', latestVer:'v1.3.0', verCount:3, hasModel:true},
+  {id:'svc-022', name:'机械旋转半径安全设备识别', line:'安全',      serviceId:'A181',           deploy:'standard', type:'detection', desc:'识别吊车、挖机、混凝土泵车、钻地机周围是否有安全设备（警示牌、警戒线、锥桶等）', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-14', latestVer:'v1.2.0', verCount:2, hasModel:true},
+  {id:'svc-023', name:'临边未防护识别',           line:'安全',      serviceId:'A256',           deploy:'standard', type:'detection', desc:'识别边坡、高差平台、房屋、主体作业临边等是否布置围栏', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-13', latestVer:'v1.1.0', verCount:2, hasModel:true},
+  {id:'svc-024', name:'基坑积水载物超载明火烟雾', line:'安全',      serviceId:'A257',           deploy:'standard', type:'detection', desc:'识别基坑积水及边缘载物、边缘超载，工地非施工导致的明火烟雾识别', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-12', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-025', name:'图像去重',                 line:'安全',      serviceId:'A306',           deploy:'standard', type:'common',    desc:'去重重复图片', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-11', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-026', name:'吊钩防脱钩装置识别',       line:'安全',      serviceId:'Amdauz4dxz5z0',  deploy:'standard', type:'detection', desc:'识别吊钩是否有防脱钩装置', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-10', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-027', name:'高坠场景识别',             line:'安全',      serviceId:'A331',           deploy:'standard', type:'detection', desc:'判断工人是否存在坠落隐患', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-09', latestVer:'v1.1.0', verCount:2, hasModel:true},
+  {id:'svc-028', name:'安全带佩戴识别',           line:'安全',      serviceId:'A271',           deploy:'standard', type:'detection', desc:'判断工人是否佩戴安全带', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-08', latestVer:'v1.2.0', verCount:3, hasModel:true},
+  {id:'svc-029', name:'圆盘锯缺失防护罩识别',     line:'安全',      serviceId:'阿里云部署',     deploy:'aliyun',   type:'detection', desc:'判断圆盘锯是否有防护罩', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-07', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-030', name:'人员躺卧识别',             line:'安全',      serviceId:'阿里云部署',     deploy:'aliyun',   type:'detection', desc:'判断工人躺卧摔倒', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-06', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-031', name:'人员翻越识别',             line:'安全',      serviceId:'阿里云部署',     deploy:'aliyun',   type:'detection', desc:'判断工人违规翻越围墙围栏等', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-05', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-032', name:'吊篮超限识别',             line:'安全',      serviceId:'阿里云部署',     deploy:'aliyun',   type:'detection', desc:'判断吊篮装载人员不等于2人', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-04', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-033', name:'吊篮空载识别',             line:'安全',      serviceId:'阿里云部署',     deploy:'aliyun',   type:'detection', desc:'判断吊篮在空中空载运行', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-03', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-034', name:'吊篮人员翻越识别',         line:'安全',      serviceId:'阿里云部署',     deploy:'aliyun',   type:'detection', desc:'判断吊篮作业工人违规翻越吊篮', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-02', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-035', name:'吊篮违规载物识别',         line:'安全',      serviceId:'阿里云部署',     deploy:'aliyun',   type:'detection', desc:'判断吊篮违规装载大型建筑材料', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-01', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-036', name:'材料码放超高识别',         line:'安全',      serviceId:'阿里云部署',     deploy:'aliyun',   type:'detection', desc:'判断工地材料堆放过高有散落安全隐患', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-02-28', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-037', name:'违规自制木梯识别',         line:'安全',      serviceId:'阿里云部署',     deploy:'aliyun',   type:'detection', desc:'判断工地违规使用自制木梯作业', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-02-27', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-038', name:'操作平台不规范识别',       line:'安全',      serviceId:'阿里云部署',     deploy:'aliyun',   type:'detection', desc:'判断工人站在非标准临时搭设的平台作业', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-02-26', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-039', name:'吊装作业下方站人识别',     line:'安全',      serviceId:'阿里云部署',     deploy:'aliyun',   type:'detection', desc:'判断吊装作业过程中工人站在吊物下方', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-02-25', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-040', name:'吊装作业上方站人识别',     line:'安全',      serviceId:'阿里云部署',     deploy:'aliyun',   type:'detection', desc:'判断吊装作业过程中工人站在吊物上方', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-02-24', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  // 计价产品线
+  {id:'svc-041', name:'AI组价工程量',             line:'计价产品线', serviceId:'阿里云部署',    deploy:'aliyun',   type:'llm-supervised', desc:'按照定额规则算出的实际施工工程量填入组价子目，让清单单价能真实反映成本', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-15', latestVer:'v1.1.0', verCount:2, hasModel:true},
+  {id:'svc-042', name:'AI组价套定额',             line:'计价产品线', serviceId:'阿里云部署',    deploy:'aliyun',   type:'llm-supervised', desc:'基于项目特征匹配返回对应匹配的定额名称', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-14', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-043', name:'AI组价换算',               line:'计价产品线', serviceId:'阿里云部署',    deploy:'aliyun',   type:'llm-supervised', desc:'基于项目特征调整定额工料机中的材料Name和Usages', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-13', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  // 土建
+  {id:'svc-044', name:'节点图关键参数识别',       line:'土建',      serviceId:'阿里云部署',     deploy:'aliyun',   type:'drawing',   desc:'定位图纸节点图位置，识别节点图关键参数', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-12', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  // 安装算量
+  {id:'svc-045', name:'管线图OCR',               line:'安装算量',   serviceId:'A4xf5qvt3cgxo', deploy:'standard', type:'drawing',   desc:'管线图中管线号和管线长度OCR信息提取', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-11', latestVer:'v1.2.0', verCount:2, hasModel:true},
+  {id:'svc-046', name:'材料表OCR',               line:'安装算量',   serviceId:'Af6qzkqwgjnfi', deploy:'standard', type:'drawing',   desc:'材料表OCR信息提取', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-10', latestVer:'v1.1.0', verCount:2, hasModel:true},
+  {id:'svc-047', name:'管线图纸信息识别',         line:'安装算量',   serviceId:'A6ccqk3kjdxzn', deploy:'standard', type:'drawing',   desc:'识别管线图纸中的管线号、图号、页码等信息', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-09', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-048', name:'接图识别',                 line:'安装算量',   serviceId:'-',             deploy:'standard', type:'drawing',   desc:'提取单线图的接图信息，包含管线号、页码、坐标、标高、标高类型、标高单位信息', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-08', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-049', name:'延长米',                   line:'安装算量',   serviceId:'A213',           deploy:'standard', type:'drawing',   desc:'对单线图提取图中管道、管件的序号+长度（value和两点框）的信息', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-07', latestVer:'v1.1.0', verCount:2, hasModel:true},
+  {id:'svc-050', name:'材料表识别',               line:'安装算量',   serviceId:'A231',           deploy:'standard', type:'drawing',   desc:'材料表表格识别（可适用无线表）输出html', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-06', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-051', name:'焊口识别',                 line:'安装算量',   serviceId:'A210',           deploy:'standard', type:'detection', desc:'焊口检测+分类（2分类 对接焊/承插焊）', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-05', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-052', name:'管件识别',                 line:'安装算量',   serviceId:'A279',           deploy:'standard', type:'drawing',   desc:'提取管线图纸序号、管径、管径单位、标高、标高类型、标高单位、坐标参数', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-04', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  // 呼叫中心
+  {id:'svc-053', name:'改写服务',                 line:'呼叫中心',  serviceId:'T312',            deploy:'standard', type:'llm-supervised', desc:'多轮对话模糊query改写', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-15', latestVer:'v1.1.0', verCount:2, hasModel:true},
+  {id:'svc-054', name:'追问服务',                 line:'呼叫中心',  serviceId:'A307',            deploy:'standard', type:'llm-supervised', desc:'多轮对话模糊query判断主题一致性', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-14', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-055', name:'反问服务',                 line:'呼叫中心',  serviceId:'A7b41vfj47xkl',  deploy:'standard', type:'llm-supervised', desc:'模糊query反问', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-13', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-056', name:'路由服务',                 line:'呼叫中心',  serviceId:'A277',            deploy:'standard', type:'llm-supervised', desc:'query分流清晰模糊问题', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-12', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-057', name:'检索服务',                 line:'呼叫中心',  serviceId:'Aqh693dkzeigh',  deploy:'standard', type:'llm-supervised', desc:'FAQ知识库检索召回', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-11', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  // 斑马进度
+  {id:'svc-058', name:'斑马进度信息抽取',         line:'斑马进度',  serviceId:'Aqh693dkzeigh',  deploy:'standard', type:'doc',       desc:'对施工组织文档提取22个字段的结构化信息', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-10', latestVer:'v1.2.0', verCount:3, hasModel:true},
+  // 清标
+  {id:'svc-059', name:'图纸解析服务',             line:'清标',      serviceId:'Aucrpubtwggcb',  deploy:'standard', type:'drawing',   desc:'DWG、PDF 图纸文本解析与结构化抽取', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-09', latestVer:'v1.1.0', verCount:2, hasModel:true},
+  {id:'svc-060', name:'技术标目录生成服务',       line:'清标',      serviceId:'Aafjmcs4glc8e',  deploy:'standard', type:'llm-supervised', desc:'结合招标文件评标办法、参考标书、业务知识等多要素的技术标目录生成', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-08', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-061', name:'技术标正文撰写服务',       line:'清标',      serviceId:'-',              deploy:'standard', type:'llm-supervised', desc:'结合招标文件、图纸、清单等多源数据综合生成，支持上下文一致性、百万级超长正文、流程图、表格等能力', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-07', latestVer:'v1.0.0', verCount:1, hasModel:true},
+  {id:'svc-062', name:'知识库检索服务',           line:'清标',      serviceId:'-',              deploy:'standard', type:'llm-supervised', desc:'实现对历史优质参考标书的入库和检索能力', vis:'private', samples:0, size:'0 MB', files:0, updated:'2024-03-06', latestVer:'v1.0.0', verCount:1, hasModel:true},
+];
+
+// 从数据云盘中选取已共享的项目，描述和元数据与云盘保持一致
+const _sharedPicks = [
+  // id,          downloads, likes, samples
+  ['svc-021', 342,  28,  8600],   // 安全绳系挂          安全
+  ['svc-023', 156,  12,  5200],   // 临边未防护识别      安全
+  ['svc-027', 218,  19,  6800],   // 高坠场景识别        安全
+  ['svc-005', 892,  67, 12400],   // 桩柱平立剖图纸识别  公路算量
+  ['svc-045', 432,  34,  9100],   // 管线图OCR          安装算量
+  ['svc-001', 287,  22,  4200],   // 资信标              行服
+  ['svc-003', 678,  53,  7300],   // 灌注桩优劣评审      行服
+  ['svc-053', 1204, 98, 18600],   // 改写服务            呼叫中心
+  ['svc-057', 345,  29,  5500],   // 检索服务            呼叫中心
+  ['svc-041', 2156, 187,22000],   // AI组价工程量        计价产品线
+  ['svc-058', 234,  18,  8900],   // 斑马进度信息抽取    斑马进度
+  ['svc-059', 567,  44, 11200],   // 图纸解析服务        清标
+];
+let sharedDatasets = _sharedPicks.map(([srcId, downloads, likes, samples], i) => {
+  const ds = cloudDatasets.find(d => d.id === srcId);
+  if (!ds) return null;
+  return {
+    id: 'sh-' + String(i + 1).padStart(3, '0'),
+    name: ds.name, org: ds.line || 'aiot-platform',
+    line: ds.line, deploy: ds.deploy, type: ds.type, desc: ds.desc,
+    license: 'Apache-2.0', latestVer: ds.latestVer,
+    samples, size: ds.size, lang: '中文',
+    updated: ds.updated, downloads, likes,
+  };
+}).filter(Boolean);
+
+let currentDataset = null;
+
+// ===== 版本历史数据 =====
+let projectVersions = {
+  'ds-001': [
+    {ver:'v1.3.0', metrics:'mAP@50: 0.873', hasModel:true,  desc:'新增夜间场景样本500条；模型优化锚框配置，mAP提升2.3%', pusher:'张三', time:'2024-03-15', latest:true},
+    {ver:'v1.2.0', metrics:'mAP@50: 0.850', hasModel:true,  desc:'数据增强扩充至6800样本；更新模型引入Mosaic增强策略',   pusher:'李四', time:'2024-03-01', latest:false},
+    {ver:'v1.0.0', metrics:'mAP@50: 0.821', hasModel:true,  desc:'初始发版，完成基础标注和模型训练',                       pusher:'张三', time:'2024-02-15', latest:false},
+  ],
+  'ds-002': [
+    {ver:'v2.0.0', metrics:'Char Acc: 99.1%', hasModel:true,  desc:'绿牌识别误识率修复；新增5000条绿牌样本',              pusher:'王五', time:'2024-03-14', latest:true},
+    {ver:'v1.1.0', metrics:'Char Acc: 98.6%', hasModel:true,  desc:'扩充黄牌数据集；模型引入CTC解码优化',                 pusher:'王五', time:'2024-02-20', latest:false},
+    {ver:'v1.0.1', metrics:'Char Acc: 98.2%', hasModel:false, desc:'修正标注格式错误，更新数据校验脚本',                   pusher:'张三', time:'2024-02-10', latest:false},
+    {ver:'v1.0.0', metrics:'Char Acc: 97.8%', hasModel:true,  desc:'初始发版',                                            pusher:'王五', time:'2024-01-15', latest:false},
+  ],
+  'ds-003': [
+    {ver:'v1.0.0', metrics:null, hasModel:false, desc:'初始数据集发版，完成匿名化处理和质量核查', pusher:'李四', time:'2024-03-13', latest:true},
+  ],
+  'ds-004': [
+    {ver:'v1.1.0', metrics:'BLEU: 0.72', hasModel:true,  desc:'新增2000条质检报告样本；模型进行第二轮SFT微调', pusher:'张三', time:'2024-03-12', latest:true},
+    {ver:'v1.0.0', metrics:'BLEU: 0.68', hasModel:true,  desc:'初始SFT发版，完成基础对话能力注入',              pusher:'张三', time:'2024-02-28', latest:false},
+  ],
+  'ds-005': [
+    {ver:'v1.1.0', metrics:'mAP@50: 0.859', hasModel:true,  desc:'模型INT8量化，推理速度提升3×；数据新增室外场景', pusher:'李四', time:'2024-03-11', latest:true},
+    {ver:'v1.0.0', metrics:'mAP@50: 0.867', hasModel:true,  desc:'初始发版，FP32 ONNX导出',                       pusher:'李四', time:'2024-02-25', latest:false},
+  ],
+  'ds-006': [{ver:'v1.0.0', metrics:null, hasModel:false, desc:'初始数据集发版', pusher:'王五', time:'2024-03-09', latest:true}],
+  'ds-007': [
+    {ver:'v1.0.1', metrics:'mAP@50: 0.841', hasModel:true,  desc:'修复推理脚本兼容性；补充50条难例标注', pusher:'李四', time:'2024-03-08', latest:true},
+    {ver:'v1.0.0', metrics:'mAP@50: 0.835', hasModel:true,  desc:'初始发版',                               pusher:'李四', time:'2024-02-20', latest:false},
+  ],
+  'ds-008': [],
+};
+let currentVis = 'private';
+let createVis = 'private';
+let publishedIds = new Set(['sh-001','sh-002','sh-003']);
+let activeFilters = {};
+
+// ===== RENDER CLOUD DISK (工程项目列表) =====
+function renderProjects(list) {
+  const grid = document.getElementById('cloud-grid');
+  document.getElementById('cd-count').textContent = list.length;
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">☁️</div><div class="empty-title">暂无工程项目</div><div class="empty-desc">点击「新建项目」创建第一个工程项目，然后在项目下新建服务、发布版本</div></div>';
+    return;
+  }
+  grid.innerHTML = list.map(prj => {
+    const svcCount = prj.serviceIds.length;
+    const services = prj.serviceIds.map(id => cloudDatasets.find(d => d.id === id)).filter(Boolean);
+    const verCount = services.reduce((s, x) => s + (x.verCount || 0), 0);
+    const hasModelCount = services.filter(x => x.hasModel).length;
+    const visBadge = prj.vis === 'public'
+      ? '<span class="prj-card-vis tag-public">🌐 公开</span>'
+      : '<span class="prj-card-vis tag-private">🔒 私有</span>';
+    return `
+    <div class="prj-card" onclick="openProjectDetail('${prj.id}')">
+      ${visBadge}
+      <div class="prj-card-head">
+        <div class="prj-card-icon">📦</div>
+        <div class="prj-card-meta">
+          <div class="prj-card-line"><span class="line-badge">${prj.line || ''}</span></div>
+          <div class="prj-card-name" title="${prj.name}">${prj.name}</div>
+        </div>
+      </div>
+      <div class="prj-card-desc">${prj.desc || '暂无描述'}</div>
+      <div class="prj-card-tags">
+        <span class="chip chip-svc-count">🧩 ${svcCount} 个服务</span>
+        ${verCount ? `<span class="chip chip-ver-count">📋 ${verCount} 次发版</span>` : ''}
+        ${hasModelCount ? `<span class="chip chip-model-count">🧠 ${hasModelCount} 个含模型</span>` : ''}
+      </div>
+      <div class="prj-card-foot">
+        <span class="pf-owner">👤 ${prj.owner}</span>
+        <span class="pf-time">${prj.updated}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterProjects() {
+  const q = (document.getElementById('cd-search').value || '').toLowerCase();
+  const line = document.getElementById('cd-line-filter').value;
+  let list = cloudProjects.filter(prj => {
+    if (q && !prj.name.toLowerCase().includes(q) && !(prj.desc||'').toLowerCase().includes(q) && !(prj.line||'').toLowerCase().includes(q) && !(prj.owner||'').toLowerCase().includes(q)) return false;
+    if (line && prj.line !== line) return false;
+    return true;
+  });
+  renderProjects(list);
+}
+
+// 兼容老调用名
+const renderCloud = renderProjects;
+const filterCloud = filterProjects;
+
+// ===== 工程项目详情页 =====
+let currentProject = null;
+
+function openProjectDetail(prjId) {
+  const prj = cloudProjects.find(p => p.id === prjId);
+  if (!prj) return;
+  currentProject = prj;
+  document.getElementById('pd-breadcrumb').textContent = prj.name;
+  document.getElementById('pd-name').textContent = prj.name;
+  document.getElementById('pd-org').textContent = `${prj.line} 产线`;
+  document.getElementById('pd-desc').textContent = prj.desc || '—';
+  document.getElementById('pd-owner').textContent = prj.owner;
+  document.getElementById('pd-updated').textContent = prj.updated;
+  document.getElementById('pd-service-count').textContent = prj.serviceIds.length;
+  document.getElementById('pd-project-id').textContent = prj.id;
+  const visBadge = document.getElementById('pd-vis-badge');
+  if (prj.vis === 'public') { visBadge.textContent = '🌐 公开'; visBadge.className = 'tag tag-public'; }
+  else { visBadge.textContent = '🔒 私有'; visBadge.className = 'tag tag-private'; }
+  renderProjectServices(prj);
+  showPage('project-detail');
+}
+
+function renderProjectServices(prj) {
+  const grid = document.getElementById('pd-service-grid');
+  const services = prj.serviceIds.map(id => cloudDatasets.find(d => d.id === id)).filter(Boolean);
+  if (!services.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1">
+      <div class="empty-icon">🧩</div>
+      <div class="empty-title">该项目下还没有服务</div>
+      <div class="empty-desc">点击右上角「＋ 新建服务」创建第一个 AI 服务，每个服务对应一个独立的 LakeFS 仓库</div>
+      <button class="btn btn-primary" onclick="prepareCreateServiceForProject()">＋ 新建服务</button>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = services.map(ds => {
+    const m = TYPE_META[ds.type] || TYPE_META.common;
+    const sidPill = (ds.serviceId && ds.serviceId !== '-' && ds.serviceId !== '阿里云部署' && ds.serviceId !== '私有部署')
+      ? `<span class="svc-id-pill" title="业务服务 ID">${ds.serviceId}</span>` : '';
+    return `
+    <div class="svc-card" onclick="openServiceDetail('${ds.id}')">
+      <div class="svc-card-head">
+        <div class="svc-card-icon" style="background:${m.color}">${m.icon}</div>
+        <div class="svc-card-titlewrap">
+          <div class="svc-card-parent">${prj.name}</div>
+          <div class="svc-card-title" title="${ds.name}">${ds.name}</div>
+        </div>
+      </div>
+      <div class="svc-card-desc">${ds.desc || '暂无描述'}</div>
+      <div class="svc-card-tags">
+        <span class="tag ${m.tagCls}">${m.label}</span>
+        ${ds.latestVer !== '-' ? `<span class="tag tag-ver">${ds.latestVer}</span>` : ''}
+        ${ds.hasModel ? `<span class="tag" style="background:#faf5ff;color:#6b21a8;border:1px solid #d8b4fe">🧠 模型</span>` : ''}
+      </div>
+      <div class="svc-card-meta-row">
+        <span class="svc-meta-l">
+          ${sidPill}
+          <span>📋 ${ds.verCount} 版本</span>
+          ${ds.deploy === 'aliyun' ? '<span style="color:#1677ff">☁ 阿里云</span>' : ds.deploy === 'private' ? '<span style="color:#d46b08">🔒 私有</span>' : ''}
+        </span>
+        <span>${ds.updated}</span>
+      </div>
+      <div class="svc-card-corner" onclick="event.stopPropagation()">
+        <button onclick="openServiceDetail('${ds.id}');setTimeout(()=>{prepareReleaseModal();showModal('modal-release')},50)">发版</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function copyPdProjectId() {
+  const id = document.getElementById('pd-project-id').textContent;
+  navigator.clipboard.writeText(id).catch(() => {});
+  const hint = document.getElementById('pd-copy-hint');
+  hint.style.display = 'inline';
+  setTimeout(() => { hint.style.display = 'none'; }, 1800);
+  showToast('success', '已复制 Project ID：' + id);
+}
+
+function showProjectSettings() {
+  showToast('info', '项目设置（重命名 / 修改负责人 / 切换可见性）开发中');
+}
+
+// 在当前项目下打开「新建服务」弹窗，自动带入产线和可见性
+function prepareCreateServiceForProject() {
+  if (!currentProject) return;
+  document.getElementById('create-belong-project').textContent = currentProject.name;
+  // 继承项目的产线和可见性
+  document.getElementById('create-line').value = currentProject.line;
+  document.getElementById('create-line-new').value = '';
+  selectCreateVis(currentProject.vis);
+  // 重置其他字段
+  document.getElementById('create-name').value = '';
+  document.getElementById('create-name-preview').textContent = 'your-service-name';
+  document.getElementById('create-desc').value = '';
+  document.getElementById('create-svc-tags').innerHTML = '';
+  document.getElementById('create-svc-input').value = '';
+  // 默认任务类型
+  const firstType = document.querySelector('#create-type-grid .type-opt');
+  if (firstType) selectType(firstType);
+  // 默认部署方式
+  selectDeployOpt(document.querySelector('.deploy-opt[data-deploy="standard"]'));
+  showModal('modal-create');
+}
+
+// ===== SERVICE DETAIL =====
+let detailProjectId = null;
+
+function openServiceDetail(id) {
+  currentDataset = cloudDatasets.find(d => d.id === id);
+  if (!currentDataset) return;
+  const ds = currentDataset;
+  const m = TYPE_META[ds.type] || TYPE_META.common;
+  const sizeIdx = sizeTag(ds.samples);
+
+  // 面包屑：数据云盘 / {工程项目名} / {服务名}
+  const belongProject = findProjectByServiceId(ds.id);
+  detailProjectId = belongProject ? belongProject.id : null;
+  const projectLink = document.getElementById('detail-project-link');
+  if (belongProject) {
+    projectLink.textContent = belongProject.name;
+    projectLink.style.display = '';
+    projectLink.parentNode.querySelectorAll('.bc-sep').forEach(s => s.style.display = '');
+  } else {
+    projectLink.textContent = '(未归属项目)';
+  }
+  document.getElementById('detail-breadcrumb').textContent = ds.name;
+  document.getElementById('detail-icon').textContent = m.icon;
+  document.getElementById('detail-icon').style.background = m.color;
+  document.getElementById('detail-org').textContent = belongProject
+    ? `${belongProject.line} 产线 · ${belongProject.name}`
+    : (ds.line ? `${ds.line} 产线` : 'aiot-platform');
+  document.getElementById('detail-name').textContent = ds.name;
+  document.getElementById('detail-updated').textContent = ds.updated;
+  document.getElementById('detail-files').textContent = ds.files;
+  document.getElementById('detail-size').textContent = ds.size;
+  const samplesEl = document.getElementById('detail-samples');
+  if (samplesEl) samplesEl.textContent = ds.samples.toLocaleString();
+  document.getElementById('detail-project-id').textContent = ds.id;
+  const tabApiEntry = document.getElementById('tab-api-doc-entry');
+  const tabApiLink  = document.getElementById('tab-api-doc-link');
+  if (tabApiEntry && ds.apiDoc) { tabApiLink.href = ds.apiDoc; tabApiEntry.style.display = 'flex'; }
+  else if (tabApiEntry) { tabApiEntry.style.display = 'none'; }
+
+  const visBadge = document.getElementById('detail-vis-badge');
+  if (ds.vis === 'public') {
+    visBadge.textContent = '🌐 公开';
+    visBadge.className = 'tag tag-public';
+  } else {
+    visBadge.textContent = '🔒 私有';
+    visBadge.className = 'tag tag-private';
+  }
+
+  const deployBadge = ds.deploy === 'aliyun'
+    ? '<span class="tag tag-deploy-aliyun">☁ 阿里云</span>'
+    : ds.deploy === 'private'
+      ? '<span class="tag tag-deploy-private">🔒 私有部署</span>'
+      : '<span class="tag" style="background:#f6ffed;color:#389e0d;border:1px solid #b7eb8f">✓ 标准部署</span>';
+  const svcIdList = ds.serviceIds && ds.serviceIds.length
+    ? ds.serviceIds
+    : (ds.serviceId && ds.serviceId !== '-' && ds.serviceId !== '阿里云部署' && ds.serviceId !== '私有部署' ? [ds.serviceId] : []);
+  const sidShow = svcIdList.map(s => `<span class="svc-id" title="服务ID">${s}</span>`).join('');
+
+  document.getElementById('detail-tags').innerHTML = `
+    ${ds.line ? `<span class="line-badge" style="font-size:12px;padding:2px 8px">${ds.line}</span>` : ''}
+    <span class="tag ${m.tagCls}">${m.label}</span>
+    ${ds.latestVer !== '-' ? `<span class="tag tag-ver">${ds.latestVer}</span>` : ''}
+    ${deployBadge}
+    ${sidShow}
+    ${ds.hasModel ? `<span class="tag" style="background:#f9f0ff;color:#531dab;border:1px solid #d3adf7">🧠 含模型</span>` : ''}
+  `;
+
+  currentVis = ds.vis;
+  document.getElementById('vis-private').className = ds.vis === 'private' ? 'vis-opt selected' : 'vis-opt';
+  document.getElementById('vis-public').className = ds.vis === 'public' ? 'vis-opt selected' : 'vis-opt';
+  document.getElementById('settings-name').value = ds.name;
+  document.getElementById('settings-desc').value = ds.desc;
+
+  // 初始化发布弹窗
+  prepareReleaseModal(ds);
+
+  renderVersionHistory();
+  renderFileTree();
+  renderModelFiles();
+  renderCodeFiles();
+  showDetailTab('versions');
+  showPage('cloud-detail');
+}
+
+// 兼容老调用名
+const openCloudDetail = openServiceDetail;
+
+function renderVersionHistory() {
+  const ds = currentDataset;
+  const area = document.getElementById('versions-area');
+  const versions = projectVersions[ds.id] || [];
+  if (!versions.length) {
+    area.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><div class="empty-title">暂无发版记录</div><div class="empty-desc">点击「发布版本」，将数据和模型一起打包发版，每次发版生成一条不可变记录</div><button class="btn btn-primary" onclick="prepareReleaseModal();showModal('modal-release')">🚀 发布版本</button></div>`;
+    return;
+  }
+  area.innerHTML = `<table class="ver-table"><thead><tr><th>版本号</th><th>内容</th><th>发布说明</th><th>发布人</th><th>时间</th><th>操作</th></tr></thead><tbody>
+    ${versions.map(v => `<tr>
+      <td>
+        <span class="ver-num">${v.ver}</span>
+        ${v.latest ? '<span class="ver-latest-badge">最新</span>' : ''}
+        <span class="storage-hint">storage://${ds.name}/${v.ver}</span>
+      </td>
+      <td style="white-space:nowrap;font-size:12px">
+        <span style="color:var(--primary)">📂 数据</span>
+        ${v.hasModel ? ' · <span style="color:#531dab">🧠 模型</span>' : ''}
+      </td>
+      <td><span class="ver-desc">${v.desc}</span></td>
+      <td>${v.pusher}</td>
+      <td style="color:var(--text-secondary);white-space:nowrap">${v.time}</td>
+      <td style="white-space:nowrap">
+        <button class="btn-link" onclick="showToast('info','下载 ${v.ver}')">下载</button>
+        ${!v.latest ? `<button class="btn-link" onclick="showToast('success','已切换到 ${v.ver}')">切换</button>` : ''}
+      </td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+
+function renderModelFiles() {
+  const ds = currentDataset;
+  const area = document.getElementById('model-file-tree-area');
+  const infoEl = document.getElementById('model-files-info');
+  if (!ds.hasModel) {
+    area.innerHTML = `<div class="empty-state"><div class="empty-icon">🧠</div><div class="empty-title">暂无模型文件</div><div class="empty-desc">发布版本时同时上传模型权重，数据与模型将一起归档至 LakeFS</div><button class="btn btn-primary" onclick="prepareReleaseModal();showModal('modal-release')">🚀 发布版本</button></div>`;
+    infoEl.textContent = '— 暂无模型文件';
+    return;
+  }
+  const modelFileMap = {
+    'detection':      [{n:'model.pt', icon:'🧠', s:'142 MB'},{n:'model.onnx', icon:'🧠', s:'47 MB'}],
+    'ocr':            [{n:'model.pt', icon:'🧠', s:'23 MB'}],
+    'classification': [{n:'model.pt', icon:'🧠', s:'98 MB'}],
+    'llm-supervised': [{n:'adapter_model.safetensors', icon:'🧠', s:'14.2 GB'},{n:'config.json', icon:'📋', s:'2.1 KB'}],
+    'vlm':            [{n:'model.pt', icon:'🧠', s:'7.8 GB'}],
+  };
+  const files = modelFileMap[ds.type] || [{n:'model.pt', icon:'🧠', s:'—'}];
+  infoEl.textContent = `最新版本：${ds.latestVer} · LakeFS 存储`;
+  area.innerHTML = `<div class="file-tree-wrap">
+    <div class="file-tree-header">
+      <div class="file-tree-commit"><span class="backend-badge">🗄 LakeFS</span><span>lakefs://${ds.id}/main/${ds.latestVer}/models/</span></div>
+      <span>${files.length} 个文件</span>
+    </div>
+    ${files.map(f => `<div class="file-row"><span class="file-icon">${f.icon}</span><span class="file-name">${f.n}</span><span class="file-size">${f.s}</span><span class="file-time">${ds.updated}</span></div>`).join('')}
+  </div>`;
+}
+
+function renderCodeFiles() {
+  const ds = currentDataset;
+  const area = document.getElementById('code-file-tree-area');
+  const infoEl = document.getElementById('code-files-info');
+  if (!ds.hasModel) {
+    area.innerHTML = `<div class="empty-state"><div class="empty-icon">💻</div><div class="empty-title">暂无代码文件</div><div class="empty-desc">发布版本时一并上传训练 / 推理代码，便于复现实验和部署</div><button class="btn btn-primary" onclick="prepareReleaseModal();showModal('modal-release')">🚀 发布版本</button></div>`;
+    infoEl.textContent = '— 暂无代码文件';
+    return;
+  }
+  const codeFileMap = {
+    'detection':      [{n:'train.py', icon:'📜', s:'8.4 KB'},{n:'inference.py', icon:'📜', s:'4.2 KB'},{n:'dataset.py', icon:'📜', s:'3.1 KB'},{n:'config.yaml', icon:'⚙', s:'1.2 KB'},{n:'requirements.txt', icon:'📄', s:'312 B'}],
+    'ocr':            [{n:'train.py', icon:'📜', s:'6.7 KB'},{n:'inference.py', icon:'📜', s:'3.1 KB'},{n:'requirements.txt', icon:'📄', s:'280 B'}],
+    'classification': [{n:'train.py', icon:'📜', s:'5.9 KB'},{n:'inference.py', icon:'📜', s:'3.8 KB'},{n:'data_loader.py', icon:'📜', s:'2.4 KB'},{n:'requirements.txt', icon:'📄', s:'298 B'}],
+    'llm-supervised': [{n:'finetune.py', icon:'📜', s:'12.3 KB'},{n:'inference.py', icon:'📜', s:'5.6 KB'},{n:'data_utils.py', icon:'📜', s:'4.1 KB'},{n:'requirements.txt', icon:'📄', s:'420 B'}],
+    'vlm':            [{n:'train.py', icon:'📜', s:'9.8 KB'},{n:'inference.py', icon:'📜', s:'4.9 KB'},{n:'requirements.txt', icon:'📄', s:'380 B'}],
+    'doc':            [{n:'extract.py', icon:'📜', s:'7.2 KB'},{n:'parser.py', icon:'📜', s:'5.4 KB'},{n:'requirements.txt', icon:'📄', s:'310 B'}],
+  };
+  const files = codeFileMap[ds.type] || [{n:'train.py', icon:'📜', s:'—'},{n:'inference.py', icon:'📜', s:'—'},{n:'requirements.txt', icon:'📄', s:'—'}];
+  infoEl.textContent = `最新版本：${ds.latestVer} · LakeFS 存储`;
+  area.innerHTML = `<div class="file-tree-wrap">
+    <div class="file-tree-header">
+      <div class="file-tree-commit"><span class="backend-badge">🗄 LakeFS</span><span>lakefs://${ds.id}/main/${ds.latestVer}/code/</span></div>
+      <span>${files.length} 个文件</span>
+    </div>
+    ${files.map(f => `<div class="file-row"><span class="file-icon">${f.icon}</span><span class="file-name">${f.n}</span><span class="file-size">${f.s}</span><span class="file-time">${ds.updated}</span></div>`).join('')}
+  </div>`;
+}
+
+function renderFileTree() {
+  const ds = currentDataset;
+  const area = document.getElementById('file-tree-area');
+  if (!ds || ds.files === 0) {
+    area.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📂</div>
+        <div class="empty-title">数据集为空</div>
+        <div class="empty-desc">点击右上角「上传数据」按钮，将你的数据文件上传至此数据集</div>
+        <button class="btn btn-primary" onclick="showUploadModal()">⬆ 上传数据</button>
+      </div>`;
+    return;
+  }
+  const fileMap = {
+    'detection':       [{n:'images/',icon:'📁',s:'—',t:ds.updated},{n:'annotations.json',icon:'📋',s:'12.4 MB',t:ds.updated},{n:'labels/',icon:'📁',s:'—',t:ds.updated},{n:'README.md',icon:'📄',s:'3.2 KB',t:ds.updated},{n:'dataset_info.json',icon:'📋',s:'1.1 KB',t:ds.updated}],
+    'classification':  [{n:'train/',icon:'📁',s:'—',t:ds.updated},{n:'val/',icon:'📁',s:'—',t:ds.updated},{n:'test/',icon:'📁',s:'—',t:ds.updated},{n:'class_names.txt',icon:'📄',s:'456 B',t:ds.updated},{n:'README.md',icon:'📄',s:'2.8 KB',t:ds.updated}],
+    'ocr':             [{n:'images/',icon:'📁',s:'—',t:ds.updated},{n:'annotations/',icon:'📁',s:'—',t:ds.updated},{n:'README.md',icon:'📄',s:'2.1 KB',t:ds.updated}],
+    'llm-supervised':  [{n:'train.jsonl',icon:'📋',s:'218 MB',t:ds.updated},{n:'val.jsonl',icon:'📋',s:'24 MB',t:ds.updated},{n:'README.md',icon:'📄',s:'3.6 KB',t:ds.updated}],
+    'llm-unsupervised':[{n:'corpus.txt',icon:'📄',s:'—',t:ds.updated},{n:'README.md',icon:'📄',s:'2.0 KB',t:ds.updated}],
+    'vlm':             [{n:'images/',icon:'📁',s:'—',t:ds.updated},{n:'qa.jsonl',icon:'📋',s:'45 MB',t:ds.updated},{n:'README.md',icon:'📄',s:'2.4 KB',t:ds.updated}],
+    'common':          [{n:'data/',icon:'📁',s:'—',t:ds.updated},{n:'README.md',icon:'📄',s:'1.2 KB',t:ds.updated}],
+  };
+  const files = fileMap[ds.type] || fileMap.common;
+  area.innerHTML = `
+    <div class="file-tree-wrap">
+      <div class="file-tree-header">
+        <div class="file-tree-commit">
+          <span style="background:#f0f0f0;border-radius:3px;padding:2px 8px;font-family:monospace;font-size:11px">a3c8f12</span>
+          <span>上传数据文件 · ${ds.updated}</span>
+        </div>
+        <span>${ds.files} 个文件</span>
+      </div>
+      ${files.map(f => `
+        <div class="file-row">
+          <span class="file-icon">${f.icon}</span>
+          <span class="file-name">${f.n}</span>
+          <span class="file-size">${f.s}</span>
+          <span class="file-time">${f.t}</span>
+        </div>`).join('')}
+    </div>`;
+}
+
+function renderPreview() {
+  const ds = currentDataset;
+  const area = document.getElementById('preview-area');
+  if (!ds || ds.samples === 0) {
+    area.innerHTML = '<div class="empty-state"><div class="empty-icon">👁️</div><div class="empty-title">暂无可预览数据</div><div class="empty-desc">上传数据后，系统将自动解析并展示前 100 条预览</div></div>';
+    return;
+  }
+  if (ds.type === 'llm-supervised' || ds.type === 'llm-unsupervised') {
+    const rows = [
+      {p:'请帮我写一封正式的商务邮件，主题是感谢合作伙伴', r:'尊敬的合作伙伴：\n\n感谢贵公司在过去一年中给予我们的大力支持与紧密合作。双方携手共进，共同实现了多个里程碑项目...'},
+      {p:'解释一下量子计算的基本原理', r:'量子计算利用量子力学的叠加和纠缠特性来处理信息。与经典比特只能处于 0 或 1 状态不同，量子比特（qubit）可以同时处于两种状态的叠加...'},
+      {p:'Python 中如何实现单例模式？', r:'Python 中实现单例模式有多种方式：\n\n1. 使用 __new__ 方法\n```python\nclass Singleton:\n    _instance = None\n    def __new__(cls):\n        if cls._instance is None:\n            cls._instance = super().__new__(cls)\n        return cls._instance\n```'},
+      {p:'总结以下文章的核心观点', r:'文章核心观点：① 人工智能技术正在重塑传统行业 ② 数据质量是模型效果的决定性因素 ③ 可解释性 AI 是企业落地的关键挑战'},
+    ];
+    area.innerHTML = `
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:10px">预览前 ${Math.min(ds.samples, 100)} 条 / 共 ${ds.samples.toLocaleString()} 条</div>
+      <div style="border:1px solid var(--border);border-radius:6px;overflow:hidden">
+        <table class="data-table">
+          <thead><tr><th style="width:45%">Prompt</th><th>Response</th></tr></thead>
+          <tbody>${rows.map(r => `<tr><td>${r.p}</td><td style="white-space:pre-wrap;font-size:12px">${r.r}</td></tr>`).join('')}</tbody>
+        </table>
+      </div>`;
+  } else {
+    const colors = ['#e8f5e9','#e3f2fd','#fff3e0','#fce4ec','#ede7f6','#e0f7fa','#fff8e1','#f3e5f5','#e8eaf6','#e0f2f1','#fbe9e7','#f9fbe7'];
+    const thumbs = Array.from({length:20},(_,i)=>({
+      name:`sample_${String(i+1).padStart(4,'0')}.jpg`,
+      c:colors[i%colors.length],
+      labeled:Math.random()>.15
+    }));
+    area.innerHTML = `
+      <div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px">预览前 ${Math.min(ds.samples,100)} 条 / 共 ${ds.samples.toLocaleString()} 条</div>
+      <div class="preview-grid">
+        ${thumbs.map(t=>`
+          <div class="preview-item">
+            <div class="preview-thumb" style="background:${t.c};position:relative">
+              <svg width="100%" height="100%" viewBox="0 0 150 112">
+                <rect width="150" height="112" fill="${t.c}"/>
+                ${t.labeled ? `<rect x="20" y="18" width="60" height="48" fill="none" stroke="#508bee" stroke-width="2"/><text x="22" y="14" fill="#508bee" font-size="9">object</text>` : ''}
+                <text x="75" y="100" text-anchor="middle" fill="#aaa" font-size="9">${t.name}</text>
+              </svg>
+              <span style="position:absolute;top:4px;right:4px;font-size:10px;padding:1px 5px;border-radius:8px;background:${t.labeled?'rgba(82,196,26,.8)':'rgba(250,173,20,.8)'};color:#fff">${t.labeled?'已标注':'未标注'}</span>
+            </div>
+            <div class="preview-item-name">${t.name}</div>
+          </div>`).join('')}
+      </div>`;
+  }
+}
+
+function showDetailTab(tab) {
+  const visibleTabs = ['versions','files','models','code'];
+  const tabEls = document.querySelectorAll('#detail-tabs .tab-item:not(#tab-api-doc-entry)');
+  tabEls.forEach((el,i) => {
+    el.classList.toggle('active', visibleTabs[i] === tab);
+  });
+  ['versions','files','models','code','settings'].forEach(t => document.getElementById('tab-' + t).classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+function switchRelTab(tab) {
+  const isWeb = tab === 'web';
+  document.getElementById('rel-panel-web').style.display = isWeb ? '' : 'none';
+  document.getElementById('rel-panel-cli').style.display = isWeb ? 'none' : '';
+  document.getElementById('rel-submit-btn').style.display = isWeb ? '' : 'none';
+  const webBtn = document.getElementById('rel-tab-web');
+  const cliBtn = document.getElementById('rel-tab-cli');
+  webBtn.style.borderBottomColor = isWeb ? 'var(--primary)' : 'transparent';
+  webBtn.style.color = isWeb ? 'var(--primary)' : 'var(--text-secondary)';
+  webBtn.style.fontWeight = isWeb ? '500' : 'normal';
+  cliBtn.style.borderBottomColor = isWeb ? 'transparent' : 'var(--primary)';
+  cliBtn.style.color = isWeb ? 'var(--text-secondary)' : 'var(--primary)';
+  cliBtn.style.fontWeight = isWeb ? 'normal' : '500';
+}
+
+function prepareReleaseModal(ds) {
+  if (typeof ds === 'string') ds = cloudDatasets.find(d => d.id === ds) || null;
+  ds = ds || currentDataset;
+  if (!ds) return;
+  const isFirst = ds.verCount === 0 || ds.latestVer === '-';
+  const dataHints = {
+    'detection':       'images/ &nbsp;annotations.json',
+    'classification':  'train/ &nbsp;val/ &nbsp;class_names.txt',
+    'ocr':             'images/ &nbsp;annotations/',
+    'llm-supervised':  'train.jsonl &nbsp;val.jsonl',
+    'llm-unsupervised':'corpus.txt',
+    'vlm':             'images/ &nbsp;qa.jsonl',
+    'common':          'data/',
+  };
+  document.getElementById('rel-proj-name').textContent = ds.name;
+  document.getElementById('rel-dir-name').textContent = ds.name;
+  document.getElementById('rel-data-hint').textContent = dataHints[ds.type] || 'data/';
+  document.getElementById('rel-is-first').style.display = isFirst ? '' : 'none';
+  document.getElementById('rel-readme-row').style.display = isFirst ? '' : 'none';
+  document.getElementById('rel-readme-row-opt').style.display = isFirst ? 'none' : '';
+  // 同步项目名 / ID 到 CLI 面板
+  const cliNameEl = document.getElementById('cli-proj-name');
+  if (cliNameEl) cliNameEl.textContent = ds.name;
+  const cliProjIdEl = document.getElementById('cli-proj-id');
+  if (cliProjIdEl) cliProjIdEl.textContent = ds.id;
+  if (isFirst) {
+    document.getElementById('rel-ver').value = 'v1.0.0';
+  } else if (ds.latestVer.startsWith('v')) {
+    const parts = ds.latestVer.slice(1).split('.').map(Number);
+    parts[2] = (parts[2] || 0) + 1;
+    document.getElementById('rel-ver').value = 'v' + parts.join('.');
+  }
+  document.getElementById('rel-desc').value = '';
+  document.getElementById('rel-release-time').value = '';
+  document.getElementById('rel-api-doc').value = '';
+  // 默认回到网页上传 tab
+  switchRelTab('web');
+}
+
+function doRelease() {
+  const ver = document.getElementById('rel-ver').value.trim();
+  const desc = document.getElementById('rel-desc').value.trim();
+  const relTimeRaw = document.getElementById('rel-release-time').value.trim();
+  const apiDoc = document.getElementById('rel-api-doc').value.trim();
+  const relTime = relTimeRaw.length === 8 && /^\d{8}$/.test(relTimeRaw)
+    ? `${relTimeRaw.slice(0,4)}-${relTimeRaw.slice(4,6)}-${relTimeRaw.slice(6,8)}`
+    : new Date().toISOString().slice(0, 10);
+  if (!ver) { showToast('error','请填写版本号'); return; }
+  if (!desc) { showToast('error','请填写发布说明'); return; }
+  const ds = currentDataset;
+  if (!projectVersions[ds.id]) projectVersions[ds.id] = [];
+  projectVersions[ds.id].forEach(v => v.latest = false);
+  projectVersions[ds.id].unshift({
+    ver, metrics: null, hasModel: true,
+    desc, pusher: '张三', time: relTime, latest: true, apiDoc,
+  });
+  if (apiDoc) ds.apiDoc = apiDoc;
+  ds.latestVer = ver;
+  ds.verCount = projectVersions[ds.id].length;
+  ds.hasModel = true;
+  ds.updated = new Date().toISOString().slice(0,10);
+  hideModal('modal-release');
+  const tabApiEntry2 = document.getElementById('tab-api-doc-entry');
+  const tabApiLink2  = document.getElementById('tab-api-doc-link');
+  if (tabApiEntry2 && ds.apiDoc) { tabApiLink2.href = ds.apiDoc; tabApiEntry2.style.display = 'flex'; }
+  else if (tabApiEntry2) { tabApiEntry2.style.display = 'none'; }
+  renderVersionHistory();
+  renderModelFiles();
+  renderCodeFiles();
+  // 同步更新所属工程项目的 updated 时间
+  const belongPrj = findProjectByServiceId(ds.id);
+  if (belongPrj) belongPrj.updated = ds.updated;
+  renderProjects(cloudProjects);
+  if (currentProject) renderProjectServices(currentProject);
+  showToast('success', `版本 ${ver} 发布成功，已写入版本存储`);
+}
+
+// ===== UPLOAD MODAL =====
+function showUploadModal() {
+  if (!currentDataset) return;
+  const m = TYPE_META[currentDataset.type] || TYPE_META.common;
+  document.getElementById('upload-type-label').textContent = m.label;
+  document.getElementById('upload-zone-hint').textContent = '支持格式：' + m.fmt;
+  document.getElementById('upload-format-box').innerHTML = buildFormatHint(currentDataset.type);
+  resetUploadModal();
+  showModal('modal-upload');
+}
+
+function buildFormatHint(type) {
+  const hints = {
+    'detection': '<strong>格式要求（二选一）</strong><br>① COCO 格式：<code>images/</code> + <code>annotations.json</code>（COCO 标准）<br>② YOLO 格式：<code>images/</code> + <code>labels/</code>（每张图对应同名 .txt）<br>支持 jpg、png、bmp 图片格式，单包最大 2 GB',
+    'classification': '<strong>格式要求</strong><br>① 目录格式：<code>train/类别A/xxx.jpg</code>，<code>train/类别B/xxx.jpg</code><br>② CSV 格式：包含 <code>filepath</code>、<code>label</code> 两列<br>目录名即为类别标签',
+    'ocr': '<strong>格式要求</strong><br><code>images/</code> 存放图片，<code>annotations/</code> 存放对应 JSON 标注文件<br>每个 JSON 含 <code>boxes</code>（坐标）和 <code>text</code>（识别文字）字段',
+    'llm-supervised': '<strong>格式要求</strong><br>JSONL 格式，每行一条样本：<code>{"prompt": "...", "response": "..."}</code><br>或 CSV 格式，含 <code>prompt</code>、<code>response</code> 两列<br>支持多轮对话格式（<code>conversations</code> 字段）',
+    'llm-unsupervised': '<strong>格式要求</strong><br>① TXT 格式：纯文本，每段落以空行分隔<br>② JSONL 格式：每行含 <code>text</code> 字段<br>单文件最大 5 GB，不做内容格式校验',
+    'vlm': '<strong>格式要求</strong><br><code>images/</code> 存放图片，<code>qa.jsonl</code> 为问答标注文件<br>每行格式：<code>{"image": "images/xxx.jpg", "question": "...", "answer": "..."}</code>',
+    'common': '<strong>格式要求</strong><br>支持任意文件格式，不做格式校验<br>单次上传最多 1000 个文件，总大小不超过 10 GB',
+  };
+  return hints[type] || hints.common;
+}
+
+function resetUploadModal() {
+  document.getElementById('upload-step-1').style.display = '';
+  document.getElementById('upload-step-2').style.display = 'none';
+  document.getElementById('upload-step-3').style.display = 'none';
+  document.getElementById('upload-confirm-btn').style.display = '';
+  document.getElementById('upload-confirm-btn').textContent = '开始上传';
+  document.getElementById('upload-cancel-btn').textContent = '取消';
+  document.getElementById('upload-progress').style.width = '0%';
+  document.getElementById('upload-zone').innerHTML = `
+    <div class="upload-zone-icon">📁</div>
+    <div class="upload-zone-title">点击选择文件，或拖拽至此处</div>
+    <div class="upload-zone-hint">${document.getElementById('upload-zone-hint').textContent}</div>`;
+  fileSelected = false;
+}
+
+let fileSelected = false;
+function triggerUpload() {
+  if (fileSelected) return;
+  fileSelected = true;
+  const zone = document.getElementById('upload-zone');
+  zone.innerHTML = `
+    <div class="upload-zone-icon">📄</div>
+    <div class="upload-zone-title" style="color:var(--primary)">dataset_files.zip 已选择</div>
+    <div class="upload-zone-hint">大小：1.8 GB · 点击「开始上传」继续</div>`;
+}
+
+function startUpload() {
+  if (!fileSelected) { showToast('warning','请先选择要上传的文件'); return; }
+  document.getElementById('upload-step-1').style.display = 'none';
+  document.getElementById('upload-format-box').style.display = 'none';
+  document.getElementById('upload-step-2').style.display = '';
+  document.getElementById('upload-confirm-btn').style.display = 'none';
+  document.getElementById('upload-cancel-btn').textContent = '后台处理';
+
+  const steps = ['校验文件格式...','解压压缩包...','导入图片文件...','处理标注信息...','建立数据索引...','即将完成...'];
+  let pct = 0, stepIdx = 0;
+  const timer = setInterval(() => {
+    pct += Math.random() * 9 + 4;
+    if (pct >= 100) {
+      pct = 100; clearInterval(timer);
+      document.getElementById('upload-step-2').style.display = 'none';
+      document.getElementById('upload-step-3').style.display = '';
+      document.getElementById('upload-confirm-btn').style.display = '';
+      document.getElementById('upload-confirm-btn').textContent = '完成';
+      document.getElementById('upload-cancel-btn').style.display = 'none';
+      document.getElementById('upload-confirm-btn').onclick = () => {
+        hideModal('modal-upload');
+        if (currentDataset) {
+          currentDataset.files = Math.max(currentDataset.files, 3) + 1;
+          currentDataset.samples = currentDataset.samples + 1250;
+          currentDataset.size = (parseFloat(currentDataset.size) + 1.8).toFixed(1) + ' GB';
+          currentDataset.updated = new Date().toISOString().slice(0,10);
+          renderFileTree(); renderPreview();
+          document.getElementById('detail-files').textContent = currentDataset.files;
+          document.getElementById('detail-samples').textContent = currentDataset.samples.toLocaleString();
+        }
+        showToast('success','上传完成！成功导入 1,250 条样本');
+        document.getElementById('upload-confirm-btn').onclick = startUpload;
+      };
+    }
+    document.getElementById('upload-progress').style.width = pct + '%';
+    document.getElementById('upload-progress-pct').textContent = Math.round(pct) + '%';
+    if (stepIdx < steps.length && pct > (stepIdx+1) * 16) {
+      document.getElementById('upload-progress-info').textContent = steps[stepIdx++];
+    }
+  }, 200);
+}
+
+// ===== PUBLISH =====
+function openPublishModal() {
+  if (!currentDataset) return;
+  document.getElementById('publish-ds-name').textContent = '"' + currentDataset.name + '"';
+  document.getElementById('publish-confirm-input').value = '';
+  document.getElementById('publish-confirm-btn').disabled = true;
+  showModal('modal-publish');
+}
+
+function quickPublish(id) {
+  event.stopPropagation();
+  currentDataset = cloudDatasets.find(d => d.id === id);
+  openPublishModal();
+}
+
+document.getElementById('publish-confirm-input').addEventListener('input', function() {
+  document.getElementById('publish-confirm-btn').disabled =
+    this.value.trim() !== (currentDataset ? currentDataset.name : '');
+});
+
+function confirmPublish() {
+  if (!currentDataset) return;
+  const ds = currentDataset;
+  ds.vis = 'public';
+  const existing = sharedDatasets.find(s => s.name === ds.name);
+  if (!existing) {
+    sharedDatasets.unshift({
+      id: 'sh-new-' + Date.now(), name: ds.name, org: 'aiot-platform',
+      type: ds.type, desc: ds.desc, license: ds.license || 'Apache-2.0',
+      line: ds.line, deploy: ds.deploy, latestVer: ds.latestVer,
+      samples: ds.samples, size: ds.size, lang: '中文',
+      updated: ds.updated, downloads: 0, likes: 0,
+    });
+  }
+  hideModal('modal-publish');
+  showToast('success','发布成功！已添加至「共享数据」');
+  const visBadge = document.getElementById('detail-vis-badge');
+  visBadge.textContent = '🌐 公开';
+  visBadge.className = 'tag tag-public';
+  document.getElementById('vis-private').className = 'vis-opt';
+  document.getElementById('vis-public').className = 'vis-opt selected';
+  if (currentProject) renderProjectServices(currentProject);
+}
+
+function selectVis(v) {
+  currentVis = v;
+  document.getElementById('vis-private').className = v === 'private' ? 'vis-opt selected' : 'vis-opt';
+  document.getElementById('vis-public').className = v === 'public' ? 'vis-opt selected' : 'vis-opt';
+  if (v === 'public' && currentDataset && currentDataset.vis !== 'public') {
+    openPublishModal();
+  }
+}
+
+function saveSettings() {
+  if (!currentDataset) return;
+  const name = document.getElementById('settings-name').value.trim();
+  if (!name) { showToast('error','服务名称不能为空'); return; }
+  currentDataset.name = name;
+  currentDataset.desc = document.getElementById('settings-desc').value.trim();
+  document.getElementById('detail-name').textContent = name;
+  const belongPrj = findProjectByServiceId(currentDataset.id);
+  document.getElementById('detail-org').textContent = belongPrj
+    ? `${belongPrj.line} 产线 · ${belongPrj.name}`
+    : 'aiot-platform / ' + name;
+  document.getElementById('detail-breadcrumb').textContent = name;
+  if (currentProject) renderProjectServices(currentProject);
+  showToast('success','设置已保存');
+}
+
+// ===== SHARED DATASETS =====
+function renderShared(list) {
+  const grid = document.getElementById('shared-grid');
+  document.getElementById('shared-count').textContent = list.length;
+  if (!list.length) {
+        grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🔍</div><div class="empty-title">未找到匹配的项目</div><div class="empty-desc">尝试调整搜索词或筛选条件</div></div>';
+    return;
+  }
+  grid.innerHTML = list.map(ds => {
+    const m = TYPE_META[ds.type] || TYPE_META.common;
+    const sizeIdx = sizeTag(ds.samples);
+    const orgColor = stringToColor(ds.org);
+    const deployTag = ds.deploy === 'aliyun'
+      ? '<span class="tag tag-deploy-aliyun" style="font-size:11px">☁ 阿里云</span>'
+      : ds.deploy === 'private'
+        ? '<span class="tag tag-deploy-private" style="font-size:11px">🔒 私有</span>'
+        : '';
+    const lineTag = ds.line
+      ? `<span class="line-badge" style="font-size:11px;padding:1px 6px">${ds.line}</span>`
+      : '';
+    const verTag = ds.latestVer
+      ? `<span class="tag tag-ver" style="font-size:11px">${ds.latestVer}</span>`
+      : '';
+    return `
+    <div class="shared-card" onclick="openSharedDetail('${ds.id}')">
+      <div class="shared-card-header">
+        <div class="shared-card-avatar" style="background:${orgColor}">${ds.org[0].toUpperCase()}</div>
+        <div style="flex:1;min-width:0">
+          <div style="display:flex;align-items:center;gap:5px;margin-bottom:2px">
+            ${lineTag}
+            <span class="shared-card-org-name" style="margin:0">${ds.org}</span>
+          </div>
+          <div class="shared-card-name" title="${ds.name}">${ds.name}</div>
+        </div>
+        <div class="shared-card-actions">
+          <button class="btn btn-sm btn-default" onclick="event.stopPropagation();showToast('info','下载功能开发中')">⬇</button>
+        </div>
+      </div>
+      <div class="shared-card-desc">${ds.desc}</div>
+      <div class="shared-card-tags">
+        <span class="tag ${m.tagCls}">${m.label}</span>
+        <span class="tag tag-size">${SIZE_LABELS[sizeIdx]}</span>
+        ${verTag}
+        ${deployTag}
+      </div>
+      <div class="shared-card-footer">
+        <span style="color:var(--text-secondary)">📁 ${ds.org}</span>
+        <span>更新 ${ds.updated}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterShared() {
+  const q = (document.getElementById('shared-search').value || '').toLowerCase();
+
+  const activeTypes  = Object.keys(filterChips).filter(k => !k.startsWith('size-') && !k.startsWith('line-'));
+  const activeSizes  = Object.keys(filterChips).filter(k => k.startsWith('size-')).map(k => parseInt(k.split('-')[1]));
+  const activeLines  = Object.keys(filterChips).filter(k => k.startsWith('line-')).map(k => k.slice(5));
+
+  let list = sharedDatasets.filter(ds => {
+    if (q && !ds.name.toLowerCase().includes(q) && !ds.desc.toLowerCase().includes(q) && !(ds.org||'').toLowerCase().includes(q) && !(ds.line||'').toLowerCase().includes(q)) return false;
+    if (activeTypes.length && !activeTypes.includes(ds.type)) return false;
+    if (activeSizes.length && !activeSizes.includes(sizeTag(ds.samples))) return false;
+    if (activeLines.length && !activeLines.includes(ds.line)) return false;
+    return true;
+  });
+  renderShared(list);
+}
+
+function sortShared(by) {
+  const q = (document.getElementById('shared-search').value || '').toLowerCase();
+  let list = sharedDatasets.filter(ds =>
+    !q || ds.name.toLowerCase().includes(q) || ds.desc.toLowerCase().includes(q)
+  );
+  list.sort((a,b) => b.updated.localeCompare(a.updated));
+  renderShared(list);
+}
+
+// Filter panel toggle
+function toggleFilter(id) {
+  const el = document.getElementById(id);
+  const key = id.replace('filter-','');
+  const tog = document.getElementById('toggle-'+key);
+  const hidden = el.style.display === 'none';
+  el.style.display = hidden ? '' : 'none';
+  tog.textContent = hidden ? '▾' : '▸';
+}
+
+let filterChips = {};
+// groupPrefix: 'tasks' | 'size' | 'line'，同组内互斥
+const filterGroupPrefixes = { tasks: '', size: 'size-', line: 'line-' };
+function toggleFilterChip(key, label, group) {
+  setTimeout(() => {
+    const cb = document.getElementById('f-' + key);
+    if (!cb) return;
+    // 清掉同组已选项
+    if (group) {
+      const prefix = filterGroupPrefixes[group] !== undefined ? filterGroupPrefixes[group] : (group + '-');
+      Object.keys(filterChips).forEach(k => {
+        const belongsToGroup = group === 'tasks'
+          ? !k.startsWith('size-') && !k.startsWith('line-')
+          : k.startsWith(prefix);
+        if (belongsToGroup && k !== key) delete filterChips[k];
+      });
+    }
+    if (cb.checked) filterChips[key] = label;
+    else delete filterChips[key];
+    renderFilterChips();
+    filterShared();
+  }, 0);
+}
+
+function renderFilterChips() {
+  const wrap = document.getElementById('active-filters');
+  const keys = Object.keys(filterChips);
+  wrap.style.display = keys.length ? '' : 'none';
+  wrap.innerHTML = keys.map(k => `
+    <span class="filter-chip">
+      ${filterChips[k]}
+      <span class="filter-chip-close" onclick="removeFilterChip('${k}')">✕</span>
+    </span>`).join('');
+}
+
+function removeFilterChip(key) {
+  delete filterChips[key];
+  const cb = document.getElementById('f-' + key);
+  if (cb) { cb.checked = false; }
+  renderFilterChips();
+  filterShared();
+}
+
+// Shared detail
+function openSharedDetail(id) {
+  const ds = sharedDatasets.find(d => d.id === id);
+  if (!ds) return;
+  const m = TYPE_META[ds.type] || TYPE_META.common;
+  const sizeIdx = sizeTag(ds.samples);
+
+  document.getElementById('sd-breadcrumb').textContent = ds.name;
+  document.getElementById('sd-icon').textContent = m.icon;
+  document.getElementById('sd-icon').style.background = m.color;
+  document.getElementById('sd-org').textContent = `${ds.org} / ${ds.name}`;
+  document.getElementById('sd-name').textContent = ds.name;
+  document.getElementById('sd-updated').textContent = ds.updated;
+  const deployTag = ds.deploy === 'aliyun'
+    ? '<span class="tag tag-deploy-aliyun">☁ 阿里云</span>'
+    : ds.deploy === 'private'
+      ? '<span class="tag tag-deploy-private">🔒 私有化</span>'
+      : '<span class="tag" style="background:#f6ffed;color:#389e0d;border:1px solid #b7eb8f">🖥 标准部署</span>';
+  document.getElementById('sd-tags').innerHTML = `
+    ${ds.line ? `<span class="line-badge" style="font-size:12px;padding:2px 8px">${ds.line}</span>` : ''}
+    <span class="tag ${m.tagCls}">${m.label}</span>
+    <span class="tag tag-size">${SIZE_LABELS[sizeIdx]}</span>
+    ${ds.latestVer ? `<span class="tag tag-ver">${ds.latestVer}</span>` : ''}
+    ${deployTag}`;
+
+  // Dataset Card
+  document.getElementById('sd-card-content').innerHTML = buildDatasetCard(ds, m, sizeIdx);
+  // File tree
+  document.getElementById('sd-file-tree').innerHTML = buildSharedFileTree(ds);
+  // Model files
+  document.getElementById('sd-model-area').innerHTML = buildSharedModelFiles(ds);
+  // Preview
+  document.getElementById('sd-preview-area').innerHTML = buildSharedPreview(ds);
+
+  showSharedTab('card');
+  showPage('shared-detail');
+}
+
+function buildDatasetCard(ds, m, sizeIdx) {
+  const deployLabel = ds.deploy === 'aliyun' ? '☁ 阿里云部署'
+    : ds.deploy === 'private' ? '🔒 私有化部署'
+    : '🖥 标准部署';
+  return `
+    <table><thead><tr><th colspan="2">Dataset Metadata</th></tr></thead><tbody>
+      <tr><td>Task</td><td>${m.label}</td></tr>
+      <tr><td>所属租户</td><td>${ds.line ? `<span class="line-badge" style="font-size:12px">${ds.line}</span>` : '<span style="color:var(--text-tertiary)">—</span>'}</td></tr>
+      <tr><td>来源团队</td><td>${ds.org}</td></tr>
+      <tr><td>部署方式</td><td>${deployLabel}</td></tr>
+      <tr><td>最新版本</td><td>${ds.latestVer ? `<span class="tag tag-ver" style="font-size:12px">${ds.latestVer}</span>` : '<span style="color:var(--text-tertiary)">—</span>'}</td></tr>
+      <tr><td>Size</td><td>${SIZE_LABELS[sizeIdx]}（${ds.samples.toLocaleString()} 条）</td></tr>
+      <tr><td>Storage</td><td>${ds.size}</td></tr>
+    </tbody></table>
+    <h2>项目简介</h2>
+    <p>${ds.desc}</p>
+    <h2>使用说明</h2>
+    <p>本项目由 <strong>${ds.line || ds.org}</strong> 团队共享，供各业务团队在平台内直接引用使用。</p>
+    <h3>加载方式</h3>
+    <p><code>GET /api/v1/datasets/${ds.id}/download</code> 获取项目数据下载链接</p>
+    <h3>数据结构</h3>
+    <p>详细的字段说明和格式规范请参阅 README.md 文件。</p>
+    <h2>引用</h2>
+    <p>如在其他项目中使用本项目资产，请引用来源：<code>${ds.org}/${ds.name}</code></p>`;
+}
+
+function buildSharedFileTree(ds) {
+  const fileMap = {
+    'detection': [{n:'images/',s:'—'},{n:'annotations.json',s:'12.4 MB'},{n:'README.md',s:'3.2 KB'}],
+    'classification': [{n:'train/',s:'—'},{n:'val/',s:'—'},{n:'class_names.txt',s:'456 B'},{n:'README.md',s:'2.8 KB'}],
+    'ocr': [{n:'images/',s:'—'},{n:'annotations/',s:'—'},{n:'README.md',s:'2.1 KB'}],
+    'llm-supervised': [{n:'train.jsonl',s:'218 MB'},{n:'val.jsonl',s:'24 MB'},{n:'README.md',s:'3.6 KB'}],
+    'llm-unsupervised': [{n:'corpus.txt',s:'—'},{n:'README.md',s:'2.0 KB'}],
+    'vlm': [{n:'images/',s:'—'},{n:'qa.jsonl',s:'45 MB'},{n:'README.md',s:'2.4 KB'}],
+    'common': [{n:'data/',s:'—'},{n:'README.md',s:'1.2 KB'}],
+  };
+  const files = fileMap[ds.type] || fileMap.common;
+  return `
+    <div class="file-tree-header"><span>文件列表（只读）</span><span>${files.length} 个文件</span></div>
+    ${files.map(f => `
+      <div class="file-row" style="cursor:default">
+        <span class="file-icon">${f.n.endsWith('/')? '📁':'📄'}</span>
+        <span style="flex:1;color:var(--primary)">${f.n}</span>
+        <span class="file-size">${f.s}</span>
+        <span class="file-time">${ds.updated}</span>
+      </div>`).join('')}`;
+}
+
+function buildSharedModelFiles(ds) {
+  const modelFileMap = {
+    'detection':      [{n:'model.pt',                   icon:'🧠', s:'142 MB', desc:'PyTorch 权重文件'},
+                       {n:'model.onnx',                 icon:'🧠', s:'47 MB',  desc:'ONNX 导出（CPU 推理）'},
+                       {n:'inference.py',               icon:'📜', s:'4.2 KB', desc:'推理脚本'},
+                       {n:'requirements.txt',           icon:'📄', s:'312 B',  desc:'依赖清单'}],
+    'ocr':            [{n:'model.pt',                   icon:'🧠', s:'23 MB',  desc:'PyTorch 权重文件'},
+                       {n:'inference.py',               icon:'📜', s:'3.1 KB', desc:'推理脚本'},
+                       {n:'requirements.txt',           icon:'📄', s:'280 B',  desc:'依赖清单'}],
+    'classification': [{n:'model.pt',                   icon:'🧠', s:'98 MB',  desc:'PyTorch 权重文件'},
+                       {n:'inference.py',               icon:'📜', s:'3.8 KB', desc:'推理脚本'},
+                       {n:'class_names.txt',            icon:'📄', s:'456 B',  desc:'类别列表'}],
+    'llm-supervised': [{n:'adapter_model.safetensors',  icon:'🧠', s:'14.2 GB',desc:'LoRA Adapter 权重'},
+                       {n:'config.json',                icon:'📋', s:'2.1 KB', desc:'模型配置'},
+                       {n:'inference.py',               icon:'📜', s:'5.6 KB', desc:'推理脚本'}],
+    'vlm':            [{n:'model.pt',                   icon:'🧠', s:'7.8 GB', desc:'VLM 权重文件'},
+                       {n:'inference.py',               icon:'📜', s:'4.9 KB', desc:'推理脚本'}],
+  };
+  const files = modelFileMap[ds.type];
+  const ver = ds.latestVer || 'latest';
+  if (!files) {
+    return `<div class="empty-state"><div class="empty-icon">🧠</div><div class="empty-title">暂无模型文件</div><div class="empty-desc">该项目尚未附带模型权重，可联系来源团队获取</div></div>`;
+  }
+  return `
+    <div class="file-tree-wrap">
+      <div class="file-tree-header">
+        <div class="file-tree-commit">
+          <span class="backend-badge">🗄 DVC / LakeFS</span>
+          <span style="color:var(--text-secondary)">storage://${ds.name}/${ver}/models/</span>
+        </div>
+        <span>${files.length} 个文件</span>
+      </div>
+      ${files.map(f => `
+        <div class="file-row">
+          <span class="file-icon">${f.icon}</span>
+          <span class="file-name">${f.n}</span>
+          <span style="flex:1;font-size:12px;color:var(--text-secondary);padding-left:12px">${f.desc}</span>
+          <span class="file-size">${f.s}</span>
+          <span style="margin-left:12px">
+            <button class="btn-link" style="font-size:12px" onclick="showToast('info','下载功能开发中')">下载</button>
+          </span>
+        </div>`).join('')}
+    </div>
+    <div style="margin-top:12px;padding:10px 14px;background:#f6ffed;border:1px solid #b7eb8f;border-radius:4px;font-size:12px;color:#389e0d">
+      🧠 模型文件来自项目 <strong>${ver}</strong> 版本，通过 DVC 存储管理，可在「数据云盘」中查看完整版本历史
+    </div>`;
+}
+
+function buildSharedPreview(ds) {
+  if (ds.type === 'llm-supervised' || ds.type === 'llm-unsupervised') {
+    return `<div style="border:1px solid var(--border);border-radius:6px;overflow:hidden">
+      <table class="data-table">
+        <thead><tr><th>Prompt</th><th>Response</th></tr></thead>
+        <tbody>
+          <tr><td>你好，请介绍一下你自己。</td><td>您好！我是一个 AI 助手，擅长回答问题、写作、分析和多种语言任务...</td></tr>
+          <tr><td>请解释量子纠缠现象</td><td>量子纠缠是量子力学中的一种现象，两个粒子在相互作用后形成量子态关联...</td></tr>
+        </tbody>
+      </table></div>`;
+  }
+  const colors = ['#e8f5e9','#e3f2fd','#fff3e0','#fce4ec','#ede7f6','#e0f7fa'];
+  return `<div class="preview-grid">${Array.from({length:8},(_,i)=>`
+    <div class="preview-item">
+      <div class="preview-thumb" style="background:${colors[i%6]}">
+        <svg width="100%" height="100%" viewBox="0 0 150 112">
+          <rect width="150" height="112" fill="${colors[i%6]}"/>
+          <rect x="25" y="20" width="55" height="45" fill="none" stroke="#508bee" stroke-width="2"/>
+          <text x="75" y="100" text-anchor="middle" fill="#aaa" font-size="9">sample_${String(i+1).padStart(4,'0')}.jpg</text>
+        </svg>
+      </div>
+      <div class="preview-item-name">sample_${String(i+1).padStart(4,'0')}.jpg</div>
+    </div>`).join('')}</div>`;
+}
+
+function showSharedTab(tab) {
+  document.querySelectorAll('#sd-tabs .tab-item').forEach((el,i) => {
+    el.classList.toggle('active', ['card','files','models','preview'][i] === tab);
+  });
+  ['sd-tab-card','sd-tab-files','sd-tab-models','sd-tab-preview'].forEach(id => {
+    document.getElementById(id).classList.remove('active');
+  });
+  document.getElementById('sd-tab-' + tab).classList.add('active');
+}
+
+// ===== CREATE PROJECT (工程项目) =====
+let cpVis = 'private';
+
+function selectCpVis(v) {
+  cpVis = v;
+  document.getElementById('cp-vis-private').className = v === 'private' ? 'vis-opt selected' : 'vis-opt';
+  document.getElementById('cp-vis-public').className = v === 'public' ? 'vis-opt selected' : 'vis-opt';
+}
+
+function onCpLineChange(sel) {
+  const newInput = document.getElementById('cp-line-new');
+  if (sel.value === '__new__') {
+    newInput.style.display = '';
+    newInput.focus();
+  } else {
+    newInput.style.display = 'none';
+    newInput.value = '';
+  }
+}
+
+function createProject() {
+  const name = document.getElementById('cp-name').value.trim();
+  if (!name) { showToast('error', '请填写项目名称'); return; }
+  const owner = document.getElementById('cp-owner').value.trim();
+  if (!owner) { showToast('error', '请填写负责人'); return; }
+  const lineSelect = document.getElementById('cp-line');
+  let line = lineSelect.value;
+  if (line === '__new__') line = document.getElementById('cp-line-new').value.trim();
+  if (!line) { showToast('error', '请选择或填写所属产线'); return; }
+  if (lineSelect.value === '__new__' && line) {
+    const opt = document.createElement('option');
+    opt.value = line; opt.textContent = line;
+    lineSelect.insertBefore(opt, lineSelect.querySelector('option[value="__new__"]'));
+    // 同步到列表页和服务创建弹窗
+    const cdLineFilter = document.getElementById('cd-line-filter');
+    if (cdLineFilter && ![...cdLineFilter.options].some(o => o.value === line)) {
+      const o2 = document.createElement('option');
+      o2.value = line; o2.textContent = line;
+      cdLineFilter.appendChild(o2);
+    }
+  }
+  const desc = document.getElementById('cp-desc').value.trim();
+  const newPrj = {
+    id: 'prj-new-' + Date.now(),
+    name, line, owner, desc,
+    vis: cpVis,
+    updated: new Date().toISOString().slice(0, 10),
+    serviceIds: [],
+  };
+  cloudProjects.unshift(newPrj);
+  // 重置表单
+  document.getElementById('cp-name').value = '';
+  document.getElementById('cp-owner').value = '';
+  document.getElementById('cp-desc').value = '';
+  document.getElementById('cp-line').value = '';
+  document.getElementById('cp-line-new').style.display = 'none';
+  document.getElementById('cp-line-new').value = '';
+  selectCpVis('private');
+  hideModal('modal-create-project');
+  filterProjects();
+  showToast('success', `工程项目「${name}」已创建`);
+  // 自动进入项目详情页，引导用户新建服务
+  setTimeout(() => {
+    openProjectDetail(newPrj.id);
+    setTimeout(() => { prepareCreateServiceForProject(); }, 200);
+  }, 300);
+}
+
+// ===== CREATE SERVICE =====
+let selectedType = 'detection';
+let createVisibility = 'private';
+
+function selectType(el) {
+  document.querySelectorAll('.type-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedType = el.dataset.type;
+}
+
+function selectCreateVis(v) {
+  createVisibility = v;
+  document.getElementById('create-vis-private').className = v === 'private' ? 'vis-opt selected' : 'vis-opt';
+  document.getElementById('create-vis-public').className = v === 'public' ? 'vis-opt selected' : 'vis-opt';
+}
+
+document.getElementById('create-name').addEventListener('input', function() {
+  document.getElementById('create-name-preview').textContent = this.value || 'your-service-name';
+});
+
+function onCreateLineChange(sel) {
+  const newInput = document.getElementById('create-line-new');
+  if (sel.value === '__new__') {
+    newInput.style.display = '';
+    newInput.focus();
+  } else {
+    newInput.style.display = 'none';
+    newInput.value = '';
+  }
+}
+
+let selectedDeploy = 'standard';
+function addCreateSvcId() {
+  const input = document.getElementById('create-svc-input');
+  const val = input.value.trim();
+  if (!val) return;
+  // 去重
+  const existing = [...document.querySelectorAll('#create-svc-tags .svc-tag-item')].map(e => e.dataset.id);
+  if (existing.includes(val)) { showToast('info', '该服务 ID 已添加'); input.value = ''; return; }
+  const tag = document.createElement('div');
+  tag.className = 'svc-tag-item';
+  tag.dataset.id = val;
+  tag.style.cssText = 'display:inline-flex;align-items:center;gap:4px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:4px;padding:2px 8px;font-size:12px;font-family:monospace;color:#1d4ed8;font-weight:500';
+  tag.innerHTML = `${val} <span onclick="this.parentElement.remove()" style="cursor:pointer;color:#93c5fd;font-size:14px;line-height:1;margin-left:2px" title="移除">×</span>`;
+  document.getElementById('create-svc-tags').appendChild(tag);
+  input.value = '';
+  input.focus();
+}
+
+function selectDeployOpt(el) {
+  document.querySelectorAll('.deploy-opt').forEach(o => {
+    o.style.borderColor = '#d9d9d9';
+    o.style.background = o.dataset.deploy === '__custom__' ? '#fafafa' : '#fff';
+    o.querySelector('div > div:first-child').style.color =
+      o.dataset.deploy === '__custom__' ? 'var(--text-secondary)' : 'var(--text-primary)';
+  });
+  el.style.borderColor = 'var(--primary)';
+  el.style.background = 'var(--primary-light)';
+  el.querySelector('div > div:first-child').style.color = 'var(--primary)';
+  selectedDeploy = el.dataset.deploy;
+  const customInput = document.getElementById('create-deploy-custom');
+  if (selectedDeploy === '__custom__') {
+    customInput.style.display = '';
+    customInput.focus();
+  } else {
+    customInput.style.display = 'none';
+    customInput.value = '';
+  }
+}
+
+function createDataset() {
+  const name = document.getElementById('create-name').value.trim();
+  if (!name) { showToast('error', '请填写服务名称'); return; }
+
+  if (!currentProject) {
+    showToast('error', '请先选择或进入一个工程项目');
+    return;
+  }
+
+  // 服务的产线和可见性继承自所属工程项目
+  const line = currentProject.line;
+  const vis = currentProject.vis;
+
+  // 读取部署方式
+  let deploy = selectedDeploy;
+  if (deploy === '__custom__') {
+    deploy = document.getElementById('create-deploy-custom').value.trim() || 'standard';
+  }
+
+  const desc = document.getElementById('create-desc').value.trim();
+  const svcIds = [...document.querySelectorAll('#create-svc-tags .svc-tag-item')].map(el => el.dataset.id);
+  const newDs = {
+    id: 'svc-new-' + Date.now(), name, type: selectedType, desc, line, deploy,
+    serviceId: svcIds.length ? svcIds[0] : '-',
+    serviceIds: svcIds,
+    vis, samples: 0, size: '0 MB', files: 0,
+    updated: new Date().toISOString().slice(0, 10),
+    latestVer: '-', verCount: 0, hasModel: false,
+  };
+  cloudDatasets.unshift(newDs);
+  projectVersions[newDs.id] = [];
+  // 关键：把新服务挂到当前工程项目下
+  currentProject.serviceIds.push(newDs.id);
+  currentProject.updated = newDs.updated;
+
+  // 重置表单
+  document.getElementById('create-deploy-custom').style.display = 'none';
+  document.getElementById('create-deploy-custom').value = '';
+  document.getElementById('create-svc-tags').innerHTML = '';
+  document.getElementById('create-svc-input').value = '';
+  selectDeployOpt(document.querySelector('.deploy-opt[data-deploy="standard"]'));
+
+  hideModal('modal-create');
+  // 刷新项目详情下的服务列表
+  renderProjectServices(currentProject);
+  document.getElementById('pd-service-count').textContent = currentProject.serviceIds.length;
+  // 进入服务详情后自动弹出发布第一个版本
+  setTimeout(() => {
+    openServiceDetail(newDs.id);
+    setTimeout(() => {
+      prepareReleaseModal(newDs);
+      showModal('modal-release');
+      showToast('info', '服务已创建，请发布第一个版本');
+    }, 200);
+  }, 300);
+}
+
+// ===== PAGE NAV =====
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.getElementById('menu-cloud').classList.toggle('active',
+    id === 'cloud-disk' || id === 'cloud-detail' || id === 'project-detail');
+  document.getElementById('menu-shared').classList.toggle('active', id === 'shared' || id === 'shared-detail');
+  if (id === 'shared') renderShared(sharedDatasets);
+}
+
+// ===== MODAL HELPERS =====
+function showModal(id) { document.getElementById(id).classList.add('show'); }
+function hideModal(id) { document.getElementById(id).classList.remove('show'); }
+document.querySelectorAll('.overlay').forEach(o => {
+  o.addEventListener('click', e => { if (e.target === o) o.classList.remove('show'); });
+});
+
+// ===== MISC =====
+function deleteDs(id) {
+  event.stopPropagation();
+  if (!confirm('确定要删除此服务吗？删除后不可恢复。')) return;
+  cloudDatasets = cloudDatasets.filter(d => d.id !== id);
+  // 从所属工程项目中移除服务 ID
+  cloudProjects.forEach(p => {
+    p.serviceIds = p.serviceIds.filter(sid => sid !== id);
+  });
+  if (currentProject) renderProjectServices(currentProject);
+  filterProjects();
+  showToast('success','删除成功');
+}
+
+function confirmDeleteDataset() {
+  if (!currentDataset) return;
+  if (!confirm(`确定要删除「${currentDataset.name}」吗？此操作不可恢复。`)) return;
+  const delId = currentDataset.id;
+  cloudDatasets = cloudDatasets.filter(d => d.id !== delId);
+  cloudProjects.forEach(p => {
+    p.serviceIds = p.serviceIds.filter(sid => sid !== delId);
+  });
+  filterProjects();
+  showToast('success','服务已删除');
+  // 回到所属项目详情页，如有则刷新；否则回列表
+  if (currentProject) {
+    renderProjectServices(currentProject);
+    document.getElementById('pd-service-count').textContent = currentProject.serviceIds.length;
+    showPage('project-detail');
+  } else {
+    showPage('cloud-disk');
+  }
+}
+
+function stringToColor(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = str.charCodeAt(i) + ((h << 5) - h);
+  const colors = ['#1677ff','#722ed1','#13c2c2','#fa8c16','#eb2f96','#52c41a','#08979c','#d46b08'];
+  return colors[Math.abs(h) % colors.length];
+}
+
+function copyProjectId() {
+  const id = document.getElementById('detail-project-id').textContent;
+  navigator.clipboard.writeText(id).catch(() => {});
+  const hint = document.getElementById('detail-copy-hint');
+  hint.style.display = 'inline';
+  setTimeout(() => { hint.style.display = 'none'; }, 1800);
+  showToast('success', '已复制 Project ID：' + id);
+}
+
+function showToast(type, msg) {
+  const icons = {success:'✅', error:'❌', warning:'⚠️', info:'ℹ️'};
+  const wrap = document.getElementById('toast-wrap');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<span class="toast-icon">${icons[type]||'ℹ️'}</span><span class="toast-msg">${msg}</span><button class="toast-close" onclick="this.parentElement.remove()">✕</button>`;
+  wrap.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; t.style.transition='opacity .3s'; setTimeout(()=>t.remove(),300); }, 3500);
+}
+
+// ===== MODEL DATA =====
+const FW_META = {
+  pytorch:     {label:'PyTorch',     cls:'tag-fw-pytorch'},
+  onnx:        {label:'ONNX',        cls:'tag-fw-onnx'},
+  tensorflow:  {label:'TensorFlow',  cls:'tag-fw-tensorflow'},
+};
+
+let modelAssets = [
+  {id:'m-001', name:'yolov8-defect-det',       type:'detection',      framework:'pytorch',     desc:'基于YOLOv8-m微调的工业缺陷检测模型，训练自product-defect-cls数据集，支持划痕、凹坑、污点等8类缺陷。', latestVer:'v1.3.0', verCount:3,  size:'142 MB',  updated:'2024-03-15', owner:'张三'},
+  {id:'m-002', name:'resnet50-cls-industry',   type:'classification', framework:'pytorch',     desc:'基于ResNet50微调的工业图像分类模型，适用于产品质检场景，Top-1精度94.2%。',                             latestVer:'v2.1.0', verCount:5,  size:'98 MB',   updated:'2024-03-14', owner:'李四'},
+  {id:'m-003', name:'crnn-plate-ocr',          type:'ocr',            framework:'pytorch',     desc:'车牌识别OCR模型，支持蓝牌/绿牌/黄牌，字符准确率99.1%，单帧推理<10ms。',                                 latestVer:'v1.0.2', verCount:2,  size:'23 MB',   updated:'2024-03-12', owner:'王五'},
+  {id:'m-004', name:'llm-sft-qwen2-7b',        type:'llm-supervised', framework:'pytorch',     desc:'基于Qwen2-7B的行业SFT微调模型，覆盖质检报告生成、工艺参数分析等场景。',                                 latestVer:'v1.0.0', verCount:1,  size:'14.2 GB', updated:'2024-03-10', owner:'张三'},
+  {id:'m-005', name:'yolov8-building-crack',   type:'detection',      framework:'onnx',        desc:'建筑裂缝检测ONNX推理模型，已量化为INT8，适合边缘设备部署，推理速度提升3×。',                            latestVer:'v1.1.0', verCount:2,  size:'12 MB',   updated:'2024-03-08', owner:'李四'},
+  {id:'m-006', name:'vlm-scene-understanding', type:'vlm',            framework:'pytorch',     desc:'室内场景理解多模态模型，支持图文问答，基于vlm-indoor-qa数据集微调，VQA准确率78.3%。',                   latestVer:'v0.9.0', verCount:1,  size:'7.8 GB',  updated:'2024-03-05', owner:'王五'},
+];
+
+let modelVersions = {
+  'm-001': [
+    {ver:'v1.3.0', format:'pt',          size:'142 MB',  metrics:'mAP@50: 0.873', desc:'优化锚框尺寸配置，mAP@50提升2.3%；更新推理后处理逻辑',     pusher:'张三', time:'2024-03-15', path:'lakefs://models/yolov8-defect-det/v1.3.0',     latest:true},
+    {ver:'v1.2.0', format:'pt',          size:'138 MB',  metrics:'mAP@50: 0.850', desc:'增加Mosaic数据增强，提升小目标检测泛化能力',               pusher:'李四', time:'2024-03-01', path:'lakefs://models/yolov8-defect-det/v1.2.0',     latest:false},
+    {ver:'v1.0.0', format:'pt',          size:'135 MB',  metrics:'mAP@50: 0.821', desc:'初始发版，完成基础训练与评测',                             pusher:'张三', time:'2024-02-15', path:'lakefs://models/yolov8-defect-det/v1.0.0',     latest:false},
+  ],
+  'm-002': [
+    {ver:'v2.1.0', format:'pt',          size:'98 MB',   metrics:'Acc: 94.2%',   desc:'引入知识蒸馏，准确率提升1.5%，模型体积压缩18%',            pusher:'李四', time:'2024-03-14', path:'lakefs://models/resnet50-cls-industry/v2.1.0',  latest:true},
+    {ver:'v2.0.0', format:'pt+onnx',    size:'118 MB',  metrics:'Acc: 92.7%',   desc:'重构模型结构，同步导出ONNX版本',                           pusher:'李四', time:'2024-02-28', path:'lakefs://models/resnet50-cls-industry/v2.0.0',  latest:false},
+    {ver:'v1.1.0', format:'pt',          size:'101 MB',  metrics:'Acc: 91.3%',   desc:'增加数据清洗，修复标注噪声导致的过拟合问题',               pusher:'张三', time:'2024-02-10', path:'lakefs://models/resnet50-cls-industry/v1.1.0',  latest:false},
+    {ver:'v1.0.1', format:'pt',          size:'101 MB',  metrics:'Acc: 89.8%',   desc:'修复推理脚本兼容性问题',                                   pusher:'张三', time:'2024-01-25', path:'lakefs://models/resnet50-cls-industry/v1.0.1',  latest:false},
+    {ver:'v1.0.0', format:'pt',          size:'101 MB',  metrics:'Acc: 89.1%',   desc:'初始发版',                                                 pusher:'王五', time:'2024-01-15', path:'lakefs://models/resnet50-cls-industry/v1.0.0',  latest:false},
+  ],
+  'm-003': [
+    {ver:'v1.0.2', format:'pt',          size:'23 MB',   metrics:'Char Acc: 99.1%', desc:'修复绿牌识别误识率偏高问题',                            pusher:'王五', time:'2024-03-12', path:'lakefs://models/crnn-plate-ocr/v1.0.2',         latest:true},
+    {ver:'v1.0.0', format:'pt',          size:'23 MB',   metrics:'Char Acc: 98.6%', desc:'初始发版',                                              pusher:'王五', time:'2024-02-20', path:'lakefs://models/crnn-plate-ocr/v1.0.0',         latest:false},
+  ],
+  'm-004': [
+    {ver:'v1.0.0', format:'safetensors', size:'14.2 GB', metrics:'BLEU: 0.72',   desc:'初始SFT微调版本，完成基础对话能力与行业知识注入',          pusher:'张三', time:'2024-03-10', path:'lakefs://models/llm-sft-qwen2-7b/v1.0.0',      latest:true},
+  ],
+  'm-005': [
+    {ver:'v1.1.0', format:'onnx(INT8)', size:'12 MB',   metrics:'mAP@50: 0.859', desc:'INT8量化，推理速度提升3×，精度损失<1%',                  pusher:'李四', time:'2024-03-08', path:'lakefs://models/yolov8-building-crack/v1.1.0',  latest:true},
+    {ver:'v1.0.0', format:'onnx(FP32)', size:'47 MB',   metrics:'mAP@50: 0.867', desc:'FP32 ONNX导出版本',                                       pusher:'李四', time:'2024-02-25', path:'lakefs://models/yolov8-building-crack/v1.0.0',  latest:false},
+  ],
+  'm-006': [
+    {ver:'v0.9.0', format:'safetensors', size:'7.8 GB', metrics:'VQA Acc: 78.3%', desc:'预览版本，基础场景问答能力已验证',                        pusher:'王五', time:'2024-03-05', path:'lakefs://models/vlm-scene-understanding/v0.9.0', latest:true},
+  ],
+};
+
+let currentModel = null;
+let selectedModelType = 'detection';
+
+// ===== RENDER MODELS =====
+function renderModels(list) {
+  const grid = document.getElementById('model-grid');
+  document.getElementById('model-count').textContent = list.length;
+  if (!list.length) {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><div class="empty-icon">🧠</div><div class="empty-title">暂无模型</div><div class="empty-desc">点击「新建模型」创建第一个模型，然后发布版本</div></div>';
+    return;
+  }
+  grid.innerHTML = list.map(m => {
+    const meta = TYPE_META[m.type] || TYPE_META.common;
+    const fw = FW_META[m.framework] || {label: m.framework, cls: 'tag-common'};
+    return `
+    <div class="model-card" onclick="openModelDetail('${m.id}')">
+      <div class="model-card-header">
+        <div class="ds-type-icon" style="background:${meta.color}">${meta.icon}</div>
+        <div class="model-card-meta">
+          <div class="model-card-org">${m.owner}</div>
+          <div class="model-card-name" title="${m.name}">${m.name}</div>
+        </div>
+      </div>
+      <div class="model-card-desc">${m.desc}</div>
+      <div class="model-card-tags">
+        <span class="tag ${meta.tagCls}">${meta.label}</span>
+        <span class="tag tag-ver">${m.latestVer}</span>
+        <span class="tag ${fw.cls}">${fw.label}</span>
+      </div>
+      <div class="model-card-footer">
+        <span>💾 ${m.size} · 📋 ${m.verCount} 个版本</span>
+        <span>${m.updated}</span>
+      </div>
+      <div class="model-card-corner-actions" onclick="event.stopPropagation()">
+        <button class="ds-corner-btn danger" onclick="deleteModel('${m.id}')">删除</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function filterModels() {
+  const q = (document.getElementById('model-search').value || '').toLowerCase();
+  const type = document.getElementById('model-type-filter').value;
+  const fw = document.getElementById('model-fw-filter').value;
+  const list = modelAssets.filter(m => {
+    if (q && !m.name.toLowerCase().includes(q) && !m.desc.toLowerCase().includes(q)) return false;
+    if (type && m.type !== type) return false;
+    if (fw && m.framework !== fw) return false;
+    return true;
+  });
+  renderModels(list);
+}
+
+function openModelDetail(id) {
+  currentModel = modelAssets.find(m => m.id === id);
+  if (!currentModel) return;
+  const meta = TYPE_META[currentModel.type] || TYPE_META.common;
+  const fw = FW_META[currentModel.framework] || {label: currentModel.framework, cls: 'tag-common'};
+  const vers = modelVersions[id] || [];
+
+  document.getElementById('md-breadcrumb').textContent = currentModel.name;
+  document.getElementById('md-icon').textContent = meta.icon;
+  document.getElementById('md-icon').style.background = meta.color;
+  document.getElementById('md-owner').textContent = `负责人：${currentModel.owner}`;
+  document.getElementById('md-name').textContent = currentModel.name;
+  document.getElementById('md-updated').textContent = currentModel.updated;
+  document.getElementById('md-ver-count').textContent = vers.length;
+  document.getElementById('md-tags').innerHTML = `
+    <span class="tag ${meta.tagCls}">${meta.label}</span>
+    <span class="tag tag-ver">${currentModel.latestVer}</span>
+    <span class="tag ${fw.cls}">${fw.label}</span>`;
+
+  // 版本历史表格
+  document.getElementById('md-ver-body').innerHTML = vers.map(v => `
+    <tr>
+      <td>
+        <span class="ver-num">${v.ver}</span>
+        ${v.latest ? '<span class="ver-latest-badge">最新</span>' : ''}
+        <span class="storage-hint">${v.path}</span>
+      </td>
+      <td><span class="ver-metrics">${v.metrics}</span></td>
+      <td><code style="font-size:12px">${v.format}</code></td>
+      <td style="white-space:nowrap">${v.size}</td>
+      <td><span class="ver-desc">${v.desc}</span></td>
+      <td>${v.pusher}</td>
+      <td style="white-space:nowrap;color:var(--text-secondary)">${v.time}</td>
+      <td style="white-space:nowrap">
+        <button class="btn-link" onclick="showToast('info','下载 ${v.ver}')">下载</button>
+        ${!v.latest ? `<button class="btn-link" onclick="showToast('success','已设为当前版本')">设为当前</button>` : ''}
+      </td>
+    </tr>`).join('');
+
+  // 文件列表
+  const latest = vers.find(v => v.latest) || vers[0];
+  document.getElementById('md-file-tree').innerHTML = `
+    <div class="file-tree-header">
+      <span>📁 ${currentModel.name} / ${latest ? latest.ver : '-'}</span>
+            <span class="backend-badge">🗄 DVC / LakeFS</span>
+    </div>
+    <div class="file-row"><span class="file-icon">🧠</span><span class="file-name">model.${latest ? latest.format.split('(')[0].split('+')[0] : 'pt'}</span><span class="file-size">${latest ? latest.size : '-'}</span><span class="file-time">${latest ? latest.time : '-'}</span></div>
+    <div class="file-row"><span class="file-icon">📜</span><span class="file-name">inference.py</span><span class="file-size">4.2 KB</span><span class="file-time">${latest ? latest.time : '-'}</span></div>
+    <div class="file-row"><span class="file-icon">📋</span><span class="file-name">requirements.txt</span><span class="file-size">312 B</span><span class="file-time">${latest ? latest.time : '-'}</span></div>
+    <div class="file-row"><span class="file-icon">📄</span><span class="file-name">README.md</span><span class="file-size">2.1 KB</span><span class="file-time">${latest ? latest.time : '-'}</span></div>`;
+
+  // 说明文档
+  document.getElementById('md-readme-content').innerHTML = `
+    <table><thead><tr><th colspan="2">模型元数据</th></tr></thead><tbody>
+      <tr><td>任务类型</td><td>${meta.label}</td></tr>
+      <tr><td>框架</td><td>${fw.label}</td></tr>
+      <tr><td>最新版本</td><td>${currentModel.latestVer}</td></tr>
+      <tr><td>存储后端</td><td>DVC / LakeFS · ${latest ? latest.path.replace('lakefs://','storage://') : '-'}</td></tr>
+      <tr><td>负责人</td><td>${currentModel.owner}</td></tr>
+    </tbody></table>
+    <h2>模型简介</h2><p>${currentModel.desc}</p>
+    <h2>使用方式</h2>
+    <h3>下载推理</h3>
+    <p><code>GET /api/v1/models/${currentModel.id}/versions/${currentModel.latestVer}/download</code></p>
+    <h3>版本管理</h3>
+    <p>每次发版通过平台「发布版本」功能提交，自动写入 DVC 或 LakeFS 并生成不可变版本记录，支持随时回溯任意历史版本。</p>
+    <h3>推理脚本</h3>
+    <p>详见文件列表中的 <code>inference.py</code>，包含完整的前后处理逻辑。</p>`;
+
+  showModelTab('versions');
+  showPage('model-detail');
+}
+
+function showModelTab(tab) {
+  ['versions','files','readme'].forEach(t => {
+    document.getElementById('md-tab-' + t).classList.toggle('active', t === tab);
+  });
+  document.querySelectorAll('#md-tabs .tab-item').forEach((el, i) => {
+    el.classList.toggle('active', ['versions','files','readme'][i] === tab);
+  });
+}
+
+function createModel() {
+  const name = document.getElementById('cm-name').value.trim();
+  if (!name) { showToast('error', '请填写模型名称'); return; }
+  const desc = document.getElementById('cm-desc').value.trim();
+  const newModel = {
+    id: 'm-new-' + Date.now(), name, type: selectedModelType, framework: 'pytorch',
+    desc: desc || '暂无描述', latestVer: '-', verCount: 0, size: '0 MB',
+    updated: new Date().toISOString().slice(0, 10), owner: '张三',
+  };
+  modelAssets.unshift(newModel);
+  modelVersions[newModel.id] = [];
+  hideModal('modal-create-model');
+  renderModels(modelAssets);
+  showToast('success', `模型「${name}」创建成功，请发布第一个版本`);
+}
+
+function selectModelType(el) {
+  document.querySelectorAll('#cm-type-grid .type-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedModelType = el.dataset.type;
+}
+
+function prepareNewVersion() {
+  if (!currentModel) return;
+  document.getElementById('nv-model-name').textContent = currentModel.name;
+  // 建议下一个版本号
+  const vers = modelVersions[currentModel.id] || [];
+  if (vers.length && vers[0].ver.startsWith('v')) {
+    const parts = vers[0].ver.slice(1).split('.').map(Number);
+    parts[2] = (parts[2] || 0) + 1;
+    document.getElementById('nv-ver').value = 'v' + parts.join('.');
+  } else {
+    document.getElementById('nv-ver').value = 'v1.0.0';
+  }
+  document.getElementById('nv-desc').value = '';
+  showModal('modal-new-version');
+}
+
+function publishNewVersion() {
+  if (!currentModel) return;
+  const ver = document.getElementById('nv-ver').value.trim();
+  const desc = document.getElementById('nv-desc').value.trim();
+  if (!ver) { showToast('error', '请填写版本号'); return; }
+  if (!desc) { showToast('error', '请填写发布说明'); return; }
+  const format = document.getElementById('nv-format').value;
+  const list = modelVersions[currentModel.id] || [];
+  list.forEach(v => v.latest = false);
+  const newVer = {
+    ver, format, size: '待计算', metrics: '-', desc, pusher: '张三',
+    time: new Date().toISOString().slice(0, 10),
+    path: `storage://models/${currentModel.name}/${ver}`, latest: true,
+  };
+  list.unshift(newVer);
+  modelVersions[currentModel.id] = list;
+  currentModel.latestVer = ver;
+  currentModel.verCount = list.length;
+  currentModel.updated = newVer.time;
+  hideModal('modal-new-version');
+  openModelDetail(currentModel.id);
+  showToast('success', `版本 ${ver} 发布成功，已写入版本存储`);
+}
+
+function deleteModel(id) {
+  modelAssets = modelAssets.filter(m => m.id !== id);
+  renderModels(modelAssets);
+  showToast('success', '模型已删除');
+}
+
+// ===== INIT =====
+renderProjects(cloudProjects);
+renderShared(sharedDatasets);
+renderModels(modelAssets);
+</script>
+</body>
+</html>
